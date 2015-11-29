@@ -37,10 +37,7 @@ puts "##################################"
 iqr = Jabber::Iq.new(:get, 'citiviti.com')
 qr = Jabber::IqQuery.new
 qr.add_namespace('jabber:iq:post')
-username = 'new_user'
-password = 'new_user_password'
-qr.add(REXML::Element.new('post').add_text(username))
-qr.add(REXML::Element.new('password').add_text(password))
+qr.add(REXML::Element.new('post').add_text("My post"))
 iqr.add(qr)
 
 5.times do

@@ -30,30 +30,12 @@ process_local_iq(_From, To,
 		 #iq{id = _ID, type = Type, xmlns = _XMLNS,
 		     sub_el = SubEl} =
 		     IQ) ->
+    ?INFO_MSG("Post incomming", []),
     case Type of
       set ->
 	  IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]};
       get ->
-	  ?INFO_MSG("Posted!!!!", []),
-	  Host = To#jid.lserver,
-	  OS = case gen_mod:get_module_opt(Host, ?MODULE, show_os,
-                                           fun(B) when is_boolean(B) -> B end,
-					   true)
-		   of
-		 true -> [get_os()];
-		 false -> []
-	       end,
-	  IQ#iq{type = result,
-		sub_el =
-		    [#xmlel{name = <<"query">>,
-			    attrs = [{<<"xmlns">>, ?NS_VERSION}],
-			    children =
-				[#xmlel{name = <<"name">>, attrs = [],
-					children =
-					    [{xmlcdata, <<"ejabberd">>}]},
-				 #xmlel{name = <<"version">>, attrs = [],
-					children = [{xmlcdata, ?VERSION}]}]
-				  ++ OS}]}
+	  ?INFO_MSG("Posted!!!!", []);
     end.
 
 get_os() ->
