@@ -56,7 +56,7 @@
 	 add_privacy_list/2, set_privacy_list/2,
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
-	 set_roster_version/2, opt_type/1]).
+	 set_roster_version/2, opt_type/1, add_new_post/2]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -590,6 +590,8 @@ add_privacy_list(Username, SName) ->
 				 "values ('">>,
 			       Username, <<"', '">>, SName, <<"');">>]).
 
+
+
 set_privacy_list(ID, RItems) ->
     ejabberd_odbc:sql_query_t([<<"delete from privacy_list_data where "
 				 "id='">>,
@@ -657,3 +659,29 @@ opt_type(odbc_type) ->
 opt_type(pgsql_users_number_estimate) ->
     fun (V) when is_boolean(V) -> V end;
 opt_type(_) -> [odbc_type, pgsql_users_number_estimate].
+
+
+
+
+
+
+
+add_new_post(Username, post) ->
+    ejabberd_odbc:sql_query_t([<<"insert into posts(username, post) "
+				 "values ('">>,
+			       Username, <<"', '">>, post, <<"');">>]).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
