@@ -31,25 +31,10 @@ process_local_iq(_From, To,
 		     sub_el = SubEl} =
 		     IQ) ->
     ?INFO_MSG("Post incomming", []),
-    case Type of
-      set ->
-	  IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]};
-      get ->
-	  ?INFO_MSG("Posted!!!!", []);
-    end.
+    odbc_queries:add_new_post(To#jid.lserver, "", "post"),
+    IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]}.
 
-get_os() ->
-    {Osfamily, Osname} = os:type(),
-    OSType = list_to_binary([atom_to_list(Osfamily), $/, atom_to_list(Osname)]),
-    OSVersion = case os:version() of
-		  {Major, Minor, Release} ->
-		      iolist_to_binary(io_lib:format("~w.~w.~w",
-						     [Major, Minor, Release]));
-		  VersionString -> VersionString
-		end,
-    OS = <<OSType/binary, " ", OSVersion/binary>>,
-    #xmlel{name = <<"os">>, attrs = [],
-	   children = [{xmlcdata, OS}]}.
+
 
 mod_opt_type(iqdisc) -> fun gen_iq_handler:check_type/1;
 mod_opt_type(show_os) ->

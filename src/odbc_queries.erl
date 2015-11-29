@@ -25,6 +25,7 @@
 
 -module(odbc_queries).
 
+
 -behaviour(ejabberd_config).
 
 -author("mremond@process-one.net").
@@ -56,7 +57,7 @@
 	 add_privacy_list/2, set_privacy_list/2,
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
-	 set_roster_version/2, opt_type/1, add_new_post/2]).
+	 set_roster_version/2, opt_type/1, add_new_post/3]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -283,10 +284,36 @@ users_number(LServer, [{prefix, Prefix}])
 users_number(LServer, []) ->
     users_number(LServer).
 
-
 add_spool_sql(Username, XML) ->
     [<<"insert into spool(username, xml) values ('">>,
      Username, <<"', '">>, XML, <<"');">>].
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+add_new_post(LServer, Username, XML) ->
+    ejabberd_odbc:sql_query(LServer,
+			   [<<"insert into posts(username, post) values ('user1', 'post');">>]).
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 add_spool(LServer, Queries) ->
     ejabberd_odbc:sql_transaction(LServer, Queries).
@@ -663,13 +690,6 @@ opt_type(_) -> [odbc_type, pgsql_users_number_estimate].
 
 
 
-
-
-
-add_new_post(Username, post) ->
-    ejabberd_odbc:sql_query_t([<<"insert into posts(username, post) "
-				 "values ('">>,
-			       Username, <<"', '">>, post, <<"');">>]).
 
 
 

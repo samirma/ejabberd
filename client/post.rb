@@ -40,10 +40,8 @@ qr.add_namespace('jabber:iq:post')
 qr.add(REXML::Element.new('post').add_text("My post"))
 iqr.add(qr)
 
-5.times do
-  cl.send iqr
-  sleep(5)
-end
+cl.send iqr
+
 sleep(5)
 
 cl.close
