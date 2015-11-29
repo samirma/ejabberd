@@ -15,6 +15,7 @@
 -include("jlib.hrl").
 
 start(Host, Opts) ->
+    ?INFO_MSG("Post module online", []),
     IQDisc = gen_mod:get_opt(iqdisc, Opts, fun gen_iq_handler:check_type/1,
                              one_queue),
     gen_iq_handler:add_iq_handler(ejabberd_local, Host,
@@ -29,9 +30,44 @@ process_local_iq(_From, To,
 		 #iq{id = _ID, type = Type, xmlns = _XMLNS,
 		     sub_el = SubEl} =
 		     IQ) ->
-?INFO_MSG("Post incomming", []),
-ok.
+    case Type of
+      set ->
+	  IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]};
+      get ->
+	  ?INFO_MSG("Posted!!!!", []),
+	  Host = To#jid.lserver,
+	  OS = case gen_mod:get_module_opt(Host, ?MODULE, show_os,
+                                           fun(B) when is_boolean(B) -> B end,
+					   true)
+		   of
+		 true -> [get_os()];
+		 false -> []
+	       end,
+	  IQ#iq{type = result,
+		sub_el =
+		    [#xmlel{name = <<"query">>,
+			    attrs = [{<<"xmlns">>, ?NS_VERSION}],
+			    children =
+				[#xmlel{name = <<"name">>, attrs = [],
+					children =
+					    [{xmlcdata, <<"ejabberd">>}]},
+				 #xmlel{name = <<"version">>, attrs = [],
+					children = [{xmlcdata, ?VERSION}]}]
+				  ++ OS}]}
+    end.
 
+get_os() ->
+    {Osfamily, Osname} = os:type(),
+    OSType = list_to_binary([atom_to_list(Osfamily), $/, atom_to_list(Osname)]),
+    OSVersion = case os:version() of
+		  {Major, Minor, Release} ->
+		      iolist_to_binary(io_lib:format("~w.~w.~w",
+						     [Major, Minor, Release]));
+		  VersionString -> VersionString
+		end,
+    OS = <<OSType/binary, " ", OSVersion/binary>>,
+    #xmlel{name = <<"os">>, attrs = [],
+	   children = [{xmlcdata, OS}]}.
 
 mod_opt_type(iqdisc) -> fun gen_iq_handler:check_type/1;
 mod_opt_type(show_os) ->

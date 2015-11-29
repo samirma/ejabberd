@@ -42,8 +42,11 @@ password = 'new_user_password'
 qr.add(REXML::Element.new('post').add_text(username))
 qr.add(REXML::Element.new('password').add_text(password))
 iqr.add(qr)
-cl.send iqr
 
+5.times do
+  cl.send iqr
+  sleep(5)
+end
 sleep(5)
 
 cl.close
