@@ -31,7 +31,9 @@ process_local_iq(_From, To,
 		     sub_el = SubEl} =
 		     IQ) ->
     ?INFO_MSG("Post incomming", []),
-    odbc_queries:add_new_post(To#jid.lserver, "", "post"),
+    PTag = xml:get_subtag(SubEl, <<"post">>),
+    #jid{luser = LUser, lserver = LServer} = To,
+    odbc_queries:add_new_post(To#jid.lserver, xml:get_tag_cdata(PTag), "post 2257"),
     IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]}.
 
 

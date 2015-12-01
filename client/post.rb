@@ -37,11 +37,11 @@ puts "##################################"
 iqr = Jabber::Iq.new(:get, 'citiviti.com')
 qr = Jabber::IqQuery.new
 qr.add_namespace('jabber:iq:post')
-qr.add(REXML::Element.new('post').add_text("My post"))
+qr.add(REXML::Element.new('post').add_text("My super post!!!!"))
 iqr.add(qr)
 
 cl.send iqr
 
-sleep(5)
+sleep(10)
 
 cl.close
