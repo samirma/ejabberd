@@ -32,8 +32,9 @@ process_local_iq(_From, To,
 		     IQ) ->
     ?INFO_MSG("Post incomming", []),
     PTag = xml:get_subtag(SubEl, <<"post">>),
-    #jid{luser = LUser, lserver = LServer} = To,
-    odbc_queries:add_new_post(To#jid.lserver, xml:get_tag_cdata(PTag), "post 2257"),
+    #jid{luser = LUser, lserver = LServer} = _From,
+    Username = ejabberd_odbc:escape(LUser),
+    odbc_queries:add_new_post(To#jid.lserver, Username, xml:get_tag_cdata(PTag)),
     IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]}.
 
 
