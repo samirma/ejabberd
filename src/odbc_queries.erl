@@ -301,9 +301,9 @@ add_spool_sql(Username, XML) ->
 
 
 add_new_post(LServer, Username, XML) ->
-    ejabberd_odbc:sql_query(LServer,[<<"insert into posts(username, post) "
+    ejabberd_odbc:sql_query(LServer,[<<"insert into posts(username, post, location) "
 				 "values ('">>,
-			       Username, <<"', '">>, XML, <<"');">>]).
+			       Username, <<"', '">>, XML, <<"', 'POINT(-118.4079 33.9434)');">>]).
 
 
 
