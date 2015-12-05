@@ -30,11 +30,14 @@ process_local_iq(_From, To,
 		 #iq{id = _ID, type = Type, xmlns = _XMLNS,
 		     sub_el = SubEl} =
 		     IQ) ->
-    ?INFO_MSG("Post incomming", []),
     PTag = xml:get_subtag(SubEl, <<"post">>),
+    PostText = xml:get_tag_cdata(PTag),
+    LatituteAttr = xml:get_tag_attr_s(<<"latitute">>, PTag), 
+    LongitudeAttr = xml:get_tag_attr_s(<<"longitude">>, PTag),
+    ?INFO_MSG("Post incomming ~p on ~p ~p~n", [PostText, LatituteAttr, LongitudeAttr]),
     #jid{luser = LUser, lserver = LServer} = _From,
     Username = ejabberd_odbc:escape(LUser),
-    odbc_queries:add_new_post(To#jid.lserver, Username, xml:get_tag_cdata(PTag)),
+    odbc_queries:add_new_post(To#jid.lserver, Username, PostText, LatituteAttr, LongitudeAttr),
     IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]}.
 
 

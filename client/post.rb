@@ -40,7 +40,7 @@ qr.add_namespace('jabber:iq:post')
 
 
 postXml = REXML::Element.new('post')
-postXml.add_text("Hello post world")
+postXml.add_text("Hello post world with gps attibutes")
 postXml.add_attribute("latitute","-118.4079")
 postXml.add_attribute("longitude","33.9434")
 qr.add(postXml)

@@ -57,7 +57,7 @@
 	 add_privacy_list/2, set_privacy_list/2,
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
-	 set_roster_version/2, opt_type/1, add_new_post/3]).
+	 set_roster_version/2, opt_type/1, add_new_post/5]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -300,10 +300,9 @@ add_spool_sql(Username, XML) ->
 
 
 
-add_new_post(LServer, Username, XML) ->
+add_new_post(LServer, Username, XML, LatituteAttr, LongitudeAttr) ->
     ejabberd_odbc:sql_query(LServer,[<<"insert into posts(username, post, location) "
-				 "values ('">>,
-			       Username, <<"', '">>, XML, <<"', 'POINT(-118.4079 33.9434)');">>]).
+				 "values ('">>, Username, <<"', '">>, XML, <<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
 
 
 
