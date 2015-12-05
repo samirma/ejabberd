@@ -37,9 +37,14 @@ puts "##################################"
 iqr = Jabber::Iq.new(:get, 'citiviti.com')
 qr = Jabber::IqQuery.new
 qr.add_namespace('jabber:iq:post')
-qr.add(REXML::Element.new('post').add_text("Hello post world"))
-qr.add(REXML::Element.new('latitute').add_text("Hello post world"))
-qr.add(REXML::Element.new('longitude').add_text("Hello post world"))
+
+
+postXml = REXML::Element.new('post')
+postXml.add_text("Hello post world")
+postXml.add_attribute("latitute","-118.4079")
+postXml.add_attribute("longitude","33.9434")
+qr.add(postXml)
+
 iqr.add(qr)
 
 cl.send iqr
