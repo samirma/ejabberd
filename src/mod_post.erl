@@ -34,11 +34,16 @@ process_local_iq(_From, To,
     PostText = xml:get_tag_cdata(PTag),
     LatituteAttr = xml:get_tag_attr_s(<<"latitute">>, PTag), 
     LongitudeAttr = xml:get_tag_attr_s(<<"longitude">>, PTag),
-    ?INFO_MSG("Post incomming ~p on ~p ~p~n", [PostText, LatituteAttr, LongitudeAttr]),
-    #jid{luser = LUser, lserver = LServer} = _From,
-    Username = ejabberd_odbc:escape(LUser),
-    odbc_queries:add_new_post(To#jid.lserver, Username, PostText, LatituteAttr, LongitudeAttr),
-    IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]}.
+    case Type of
+      set ->
+    	  ?INFO_MSG("### Post incomming ~p on ~p ~p~n", [PostText, LatituteAttr, LongitudeAttr]),
+    	  #jid{luser = LUser, lserver = LServer} = _From,
+    	  Username = ejabberd_odbc:escape(LUser),
+    	  odbc_queries:add_new_post(To#jid.lserver, Username, PostText, LatituteAttr, LongitudeAttr),
+	  IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = []}]};
+      get ->
+	  IQ#iq{type = error, sub_el = [SubEl, ?ERR_NOT_ALLOWED]}
+    end.
 
 
 
