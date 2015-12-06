@@ -45,7 +45,7 @@ postXml.add_attribute("latitute","-118.4079")
 postXml.add_attribute("longitude","31.9434")
 qr.add(postXml)
 iqr.add(qr)
-cl.send iqr
+#cl.send iqr
 
 puts "##################################"
 
@@ -59,7 +59,7 @@ postXml.add_attribute("latitute","-118.4079")
 postXml.add_attribute("longitude","31.9434")
 qr.add(postXml)
 iqr.add(qr)
-#cl.send iqr
+cl.send iqr
 
 sleep(10)
 
