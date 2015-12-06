@@ -305,7 +305,7 @@ add_new_post(LServer, Username, XML, LatituteAttr, LongitudeAttr) ->
 
 get_posts(LServer, LatituteAttr, LongitudeAttr) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id FROM posts;">>]).
+			    [<<"SELECT id, username, post FROM posts;">>]).
 
 
 
