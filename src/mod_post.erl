@@ -44,7 +44,9 @@ process_local_iq(_From, To,
 		get ->
 			Posts = process_posts_get(To#jid.lserver, LatituteAttr, LongitudeAttr),
 			?INFO_MSG("Posts ~p ~n", [Posts]),
-			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = [Posts]}]}
+			Result = [#xmlel{name = <<"posts">>, attrs = [], children = Posts}],
+			?INFO_MSG("Result ~p ~n", [Result]),
+			IQ#iq{type = result, sub_el = Result}
 	end.
 
 
@@ -59,7 +61,7 @@ process_posts_get(LServer, LatituteAttr, LongitudeAttr) ->
 					    children = []}
 			     end,
 			     Posts),
-	  {none, LItems};
+	  LItems;
       _ -> error
     end.
 
