@@ -57,7 +57,13 @@
 	 add_privacy_list/2, set_privacy_list/2,
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
-	 set_roster_version/2, opt_type/1, add_new_post/5, get_posts/3]).
+	 set_roster_version/2, opt_type/1,
+	 add_new_post/5, get_posts/3,
+	 get_comments/2,
+	 add_new_comment/4
+	 
+		 
+]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -294,7 +300,7 @@ add_spool_sql(Username, XML) ->
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% Posts
 
 
 
@@ -307,9 +313,18 @@ get_posts(LServer, LatituteAttr, LongitudeAttr) ->
     ejabberd_odbc:sql_query(LServer,
 			    [<<"SELECT id, username, post FROM posts;">>]).
 
+%%%%%%% Comments
 
+add_new_comment(LServer, Username, PostId, Comment) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, comment) "
+				 "values ('">>, Username, <<"', '">>, PostId, <<", '">>, Comment, <<"' )');">>]).
 
-%%%%%%%%%%%%%%%%%%%%%%%%
+get_comments(LServer, PostId) ->
+    ejabberd_odbc:sql_query(LServer,
+			    [<<"SELECT id, commentary FROM comments where post_id=">>,
+					   PostId, <<";">>]).
+
+%%%%%%% 
 
 
 

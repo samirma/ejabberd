@@ -35,6 +35,8 @@
 -define(NS_BLOCKING, <<"urn:xmpp:blocking">>).
 -define(NS_PRIVATE, <<"jabber:iq:private">>).
 -define(NS_POST, <<"jabber:iq:post">>).
+-define(NS_COMMENT, <<"jabber:iq:comment">>).
+-define(NS_RATE, <<"jabber:iq:rate">>).
 -define(NS_VERSION, <<"jabber:iq:version">>).
 -define(NS_TIME, <<"urn:xmpp:time">>).
 -define(NS_LAST, <<"jabber:iq:last">>).

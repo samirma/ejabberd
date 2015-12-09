@@ -43,9 +43,7 @@ process_local_iq(_From, To,
 			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = []}]};
 		get ->
 			Posts = process_posts_get(To#jid.lserver, LatituteAttr, LongitudeAttr),
-			?INFO_MSG("Posts ~p ~n", [Posts]),
 			Result = [#xmlel{name = <<"posts">>, attrs = [], children = Posts}],
-			?INFO_MSG("Result ~p ~n", [Result]),
 			IQ#iq{type = result, sub_el = Result}
 	end.
 

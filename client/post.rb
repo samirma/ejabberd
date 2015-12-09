@@ -61,6 +61,13 @@ qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
 
+puts "#################"
+
+
+iqr = Jabber::Iq.new(:get, 'citiviti.com')
+qr = Jabber::IqQuery.new
+qr.add_namespace('jabber:iq:comment')
+
 sleep(10)
 
 cl.close
