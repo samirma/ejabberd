@@ -317,7 +317,7 @@ get_posts(LServer, LatituteAttr, LongitudeAttr) ->
 
 add_new_comment(LServer, Username, PostId, Comment) ->
     ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, comment) "
-				 "values ('">>, Username, <<"', '">>, PostId, <<", '">>, Comment, <<"' )');">>]).
+				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment, <<"' );">>]).
 
 get_comments(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer,
