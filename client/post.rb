@@ -68,6 +68,13 @@ iqr = Jabber::Iq.new(:get, 'citiviti.com')
 qr = Jabber::IqQuery.new
 qr.add_namespace('jabber:iq:comment')
 
+
+postXml = REXML::Element.new('comment')
+postXml.add_attribute("post_id","1")
+qr.add(postXml)
+iqr.add(qr)
+cl.send iqr
+
 sleep(10)
 
 cl.close
