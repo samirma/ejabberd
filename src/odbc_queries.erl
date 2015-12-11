@@ -321,8 +321,7 @@ add_new_comment(LServer, Username, PostId, Comment) ->
 
 get_comments(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, commentary FROM comments where post_id=">>,
-					   PostId, <<";">>]).
+			    [<<"SELECT id, comment FROM comments where post_id=">>,  PostId, <<";">>]).
 
 %%%%%%% 
 
