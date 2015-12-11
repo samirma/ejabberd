@@ -311,7 +311,7 @@ add_new_post(LServer, Username, XML, LatituteAttr, LongitudeAttr) ->
 
 get_posts(LServer, LatituteAttr, LongitudeAttr) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, username, post FROM posts;">>]).
+			    [<<"SELECT id, username, post, rate FROM posts;">>]).
 
 %%%%%%% Comments
 
@@ -321,7 +321,7 @@ add_new_comment(LServer, Username, PostId, Comment) ->
 
 get_comments(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, comment FROM comments where post_id=">>,  PostId, <<";">>]).
+			    [<<"SELECT id, comment, rate FROM comments where post_id=">>,  PostId, <<";">>]).
 
 %%%%%%% 
 

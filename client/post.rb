@@ -32,7 +32,7 @@ iq.query = Jabber::Version::IqQueryVersion.new
 
 cl.send(iq)
 
-puts "##################################"
+puts "################### Posting "
 
 iqr = Jabber::Iq.new(:set, 'citiviti.com')
 qr = Jabber::IqQuery.new
@@ -45,9 +45,9 @@ postXml.add_attribute("latitute","-118.4079")
 postXml.add_attribute("longitude","31.9434")
 qr.add(postXml)
 iqr.add(qr)
-#cl.send iqr
+cl.send iqr
 
-puts "##################################"
+puts "################################## Comenting"
 
 iqr = Jabber::Iq.new(:set, 'citiviti.com')
 qr = Jabber::IqQuery.new
@@ -61,7 +61,22 @@ qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
 
-puts "#################"
+puts "################# Get Posting list"
+
+
+iqr = Jabber::Iq.new(:get, 'citiviti.com')
+qr = Jabber::IqQuery.new
+qr.add_namespace('jabber:iq:post')
+
+
+postXml = REXML::Element.new('post')
+postXml.add_attribute("latitute","-118.4079")
+postXml.add_attribute("longitude","31.9434")
+qr.add(postXml)
+iqr.add(qr)
+cl.send iqr
+
+puts "################# Get Commenting list"
 
 
 iqr = Jabber::Iq.new(:get, 'citiviti.com')
