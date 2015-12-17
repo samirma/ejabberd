@@ -60,7 +60,7 @@
 	 set_roster_version/2, opt_type/1,
 	 add_new_post/5, get_posts/3,
 	 get_comments/2,
-	 add_new_comment/4
+	 add_new_comment/6
 	 
 		 
 ]).
@@ -315,13 +315,13 @@ get_posts(LServer, LatituteAttr, LongitudeAttr) ->
 
 %%%%%%% Comments
 
-add_new_comment(LServer, Username, PostId, Comment) ->
-    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, comment) "
-				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment, <<"' );">>]).
+add_new_comment(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, location) "
+				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
 
 get_comments(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, comment, rate FROM comments where post_id=">>,  PostId, <<";">>]).
+			    [<<"SELECT id, commentary, rate FROM comments where post_id=">>,  PostId, <<";">>]).
 
 %%%%%%% 
 

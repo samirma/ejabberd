@@ -41,25 +41,13 @@ qr.add_namespace('jabber:iq:post')
 
 postXml = REXML::Element.new('post')
 postXml.add_text("Hello post world with gps attibutes")
-postXml.add_attribute("latitute","-118.4079")
+postXml.add_attribute("latitude","-118.4079")
 postXml.add_attribute("longitude","31.9434")
 qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
 
-puts "################################## Comenting"
 
-iqr = Jabber::Iq.new(:set, 'citiviti.com')
-qr = Jabber::IqQuery.new
-qr.add_namespace('jabber:iq:comment')
-
-
-postXml = REXML::Element.new('comment')
-postXml.add_attribute("post_id","1")
-postXml.add_text("My comment")
-qr.add(postXml)
-iqr.add(qr)
-cl.send iqr
 
 puts "################# Get Posting list"
 
@@ -70,7 +58,22 @@ qr.add_namespace('jabber:iq:post')
 
 
 postXml = REXML::Element.new('post')
-postXml.add_attribute("latitute","-118.4079")
+postXml.add_attribute("latitude","-118.4079")
+postXml.add_attribute("longitude","31.9434")
+qr.add(postXml)
+iqr.add(qr)
+cl.send iqr
+
+
+puts "################################## Comenting"
+
+iqr = Jabber::Iq.new(:set, 'citiviti.com')
+qr = Jabber::IqQuery.new
+qr.add_namespace('jabber:iq:comment')
+postXml = REXML::Element.new('comment')
+postXml.add_attribute("post_id","1")
+postXml.add_text("My comment")
+postXml.add_attribute("latitude","-118.4079")
 postXml.add_attribute("longitude","31.9434")
 qr.add(postXml)
 iqr.add(qr)
@@ -82,13 +85,12 @@ puts "################# Get Commenting list"
 iqr = Jabber::Iq.new(:get, 'citiviti.com')
 qr = Jabber::IqQuery.new
 qr.add_namespace('jabber:iq:comment')
-
-
 postXml = REXML::Element.new('comment')
 postXml.add_attribute("post_id","1")
 qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
+
 
 sleep(10)
 

@@ -32,17 +32,17 @@ process_local_iq(_From, To,
 					 IQ) ->
 	PTag = xml:get_subtag(SubEl, <<"post">>),
 	PostText = xml:get_tag_cdata(PTag),
-	LatituteAttr = xml:get_tag_attr_s(<<"latitute">>, PTag), 
-	LongitudeAttr = xml:get_tag_attr_s(<<"longitude">>, PTag),
+	Lat = xml:get_tag_attr_s(<<"latitude">>, PTag), 
+	Long = xml:get_tag_attr_s(<<"longitude">>, PTag),
 	#jid{luser = LUser, lserver = LServer} = _From,
 	Username = ejabberd_odbc:escape(LUser),
 	case Type of
 		set ->
-			?INFO_MSG("Post incomming ~p on ~p ~p~n", [PostText, LatituteAttr, LongitudeAttr]),
-			odbc_queries:add_new_post(To#jid.lserver, Username, PostText, LatituteAttr, LongitudeAttr),
+			?INFO_MSG("Post incomming ~p on ~p ~p~n", [PostText, Lat, Long]),
+			odbc_queries:add_new_post(To#jid.lserver, Username, PostText, Lat, Long),
 			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = []}]};
 		get ->
-			Posts = process_posts_get(To#jid.lserver, LatituteAttr, LongitudeAttr),
+			Posts = process_posts_get(To#jid.lserver, Lat, Long),
 			Result = [#xmlel{name = <<"posts">>, attrs = [], children = Posts}],
 			IQ#iq{type = result, sub_el = Result}
 	end.
