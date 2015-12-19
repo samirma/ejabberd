@@ -1,3 +1,3 @@
-./configure --prefix=$HOME/ejabberd --enable-pgsql
+./configure --prefix=/opt/ejabberd --enable-pgsql
 make 
 make install 

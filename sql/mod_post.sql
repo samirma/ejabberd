@@ -1,10 +1,16 @@
-DROP table posts;
+DROP TABLE public.posts;
 
-DROP table comments;
+DROP TABLE public.comments;
 
-DROP table rates;
+DROP TABLE public.rates;
 
-CREATE TABLE posts (
+DROP TABLE public.wifi_posts;
+DROP TABLE public.hidden_posts;
+DROP TABLE public.hidden_comments;
+DROP TABLE public.wifi_locations;
+
+
+CREATE TABLE public.posts (
     id SERIAL UNIQUE,
     username text NOT NULL,
     post text NOT NULL,
@@ -16,7 +22,7 @@ CREATE TABLE posts (
 CREATE INDEX i_posts ON posts USING btree (username);
 
 
-CREATE TABLE comments
+CREATE TABLE public.comments
 (
   id serial,
   post_id integer NOT NULL,
@@ -28,7 +34,7 @@ CREATE TABLE comments
 );
 
 
-CREATE TABLE rates
+CREATE TABLE public.rates
 (
   id serial,
   post_id integer,
@@ -39,7 +45,7 @@ CREATE TABLE rates
 );
 
 
-CREATE TABLE hidden_posts
+CREATE TABLE public.hidden_posts
 (
   id serial,
   post_id integer,
@@ -48,7 +54,7 @@ CREATE TABLE hidden_posts
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
 
-CREATE TABLE hidden_comments
+CREATE TABLE public.hidden_comments
 (
   id serial,
   comment_id integer,
@@ -56,7 +62,7 @@ CREATE TABLE hidden_comments
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
 
-CREATE TABLE wifi_locations
+CREATE TABLE public.wifi_locations
 (
   id serial,
   wifi_name text,
@@ -65,16 +71,8 @@ CREATE TABLE wifi_locations
 ); 
 
 
-CREATE TABLE wifi_locations
-(
-  id serial,
-  wifi_name text,
-  location geometry,
-  created_at TIMESTAMP NOT NULL DEFAULT now()
-); 
 
-
-CREATE TABLE wifi_posts
+CREATE TABLE public.wifi_posts
 (
   wifi_locations_id integer,
   post_id integer,
