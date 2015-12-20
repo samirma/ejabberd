@@ -25,6 +25,7 @@
 
 -module(odbc_queries).
 
+
 -behaviour(ejabberd_config).
 
 -author("mremond@process-one.net").
@@ -56,7 +57,13 @@
 	 add_privacy_list/2, set_privacy_list/2,
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
-	 set_roster_version/2, opt_type/1]).
+	 set_roster_version/2, opt_type/1,
+	 add_new_post/5, get_posts/3,
+	 get_comments/2,
+	 add_new_comment/6
+	 
+		 
+]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -283,10 +290,42 @@ users_number(LServer, [{prefix, Prefix}])
 users_number(LServer, []) ->
     users_number(LServer).
 
-
 add_spool_sql(Username, XML) ->
     [<<"insert into spool(username, xml) values ('">>,
      Username, <<"', '">>, XML, <<"');">>].
+
+
+
+
+
+
+
+%%%%%%% Posts
+
+
+
+add_new_post(LServer, Username, XML, LatituteAttr, LongitudeAttr) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into posts(username, post, location) "
+				 "values ('">>, Username, <<"', '">>, XML, <<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
+
+
+get_posts(LServer, LatituteAttr, LongitudeAttr) ->
+    ejabberd_odbc:sql_query(LServer,
+			    [<<"SELECT id, username, post, rate FROM posts;">>]).
+
+%%%%%%% Comments
+
+add_new_comment(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, location) "
+				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
+
+get_comments(LServer, PostId) ->
+    ejabberd_odbc:sql_query(LServer,
+			    [<<"SELECT id, commentary, rate FROM comments where post_id=">>,  PostId, <<";">>]).
+
+%%%%%%% 
+
+
 
 add_spool(LServer, Queries) ->
     ejabberd_odbc:sql_transaction(LServer, Queries).
@@ -590,6 +629,8 @@ add_privacy_list(Username, SName) ->
 				 "values ('">>,
 			       Username, <<"', '">>, SName, <<"');">>]).
 
+
+
 set_privacy_list(ID, RItems) ->
     ejabberd_odbc:sql_query_t([<<"delete from privacy_list_data where "
 				 "id='">>,
@@ -657,3 +698,9 @@ opt_type(odbc_type) ->
 opt_type(pgsql_users_number_estimate) ->
     fun (V) when is_boolean(V) -> V end;
 opt_type(_) -> [odbc_type, pgsql_users_number_estimate].
+
+
+
+
+
+
