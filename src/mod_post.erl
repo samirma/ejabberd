@@ -52,10 +52,10 @@ process_local_iq(_From, To,
 
 process_posts_get(LServer, LatituteAttr, LongitudeAttr) ->
     case catch list_posts(LServer, LatituteAttr, LongitudeAttr) of
-      {selected, [<<"id">>, <<"username">>, <<"post">>, <<"rate">>], Posts} ->
-	  LItems = lists:map(fun ([N,U,P, R]) ->
+      {selected, [<<"id">>, <<"username">>, <<"post">>, <<"rate">>, <<"rates_count">>, <<"views_count">>], Posts} ->
+	  LItems = lists:map(fun ([N,U,P, R, H, V]) ->
 				     #xmlel{name = <<"post">>,
-					    attrs = [{<<"id">>, N}, {<<"user">>, U}, {<<"rate">>, R}],
+					    attrs = [{<<"id">>, N}, {<<"user">>, U}, {<<"rate">>, R}, {<<"rates_count">>, R}, {<<"views">>, V}],
 					    children = [{xmlcdata, P}]}
 			     end,
 			     Posts),

@@ -37,6 +37,8 @@
 -define(NS_POST, <<"jabber:iq:post">>).
 -define(NS_COMMENT, <<"jabber:iq:comment">>).
 -define(NS_RATE, <<"jabber:iq:rate">>).
+-define(NS_CITIVITI_REGISTER, <<"jabber:iq:citivitiregister">>).
+-define(NS_CITIVITI_PREFERENCE, <<"jabber:iq:citivitipreference">>).
 -define(NS_VERSION, <<"jabber:iq:version">>).
 -define(NS_TIME, <<"urn:xmpp:time">>).
 -define(NS_LAST, <<"jabber:iq:last">>).

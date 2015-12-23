@@ -30,20 +30,15 @@ process_local_iq(_From, To,
 					 sub_el = SubEl} =
 					 IQ) ->
 	PTag = xml:get_subtag(SubEl, <<"rate">>),
-	CommentText = xml:get_tag_cdata(PTag),
 	PostId = xml:get_tag_attr_s(<<"post_id">>, PTag), 
-	CommentId = xml:get_tag_attr_s(<<"comment_id">>, PTag), 
+	TypeRate = xml:get_tag_attr_s(<<"type">>, PTag), 
 	#jid{luser = LUser, lserver = LServer} = _From,
 	Username = ejabberd_odbc:escape(LUser),
 	case Type of
 		set ->
 			?INFO_MSG("Rate incomming ~n", []),
-		    if
-		        PostId ->
-		            odbc_queries:add_new_comment(To#jid.lserver, Username, PostId, CommentText);
-		        CommentId -> % works as an 'else' branch
-		            odbc_queries:add_new_comment(To#jid.lserver, Username, CommentId, CommentText)
-		    end,
+
+		    
 			IQ#iq{type = result, sub_el = []};
 		get ->
 			IQ#iq{type = error, sub_el = []}

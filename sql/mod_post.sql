@@ -16,6 +16,8 @@ CREATE TABLE public.posts (
     post text NOT NULL,
     location geometry NULL,
     rate integer NOT NULL DEFAULT 0,
+    rates_count integer NOT NULL DEFAULT 0,
+    views_count integer NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
@@ -30,6 +32,7 @@ CREATE TABLE public.comments
   commentary text NOT NULL,
   location geometry NULL,
   rate integer NOT NULL DEFAULT 0,
+  rates_count integer NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
@@ -78,3 +81,48 @@ CREATE TABLE public.wifi_posts
   post_id integer,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
+
+
+CREATE TABLE public.registed_users
+(
+  username text,
+  phone_id integer,
+  created_at TIMESTAMP NOT NULL DEFAULT now()
+); 
+
+
+CREATE TABLE public.user_phone
+(
+  id serial,
+  phone text,
+  register_code text,
+  created_at TIMESTAMP NOT NULL DEFAULT now()
+); 
+
+CREATE TABLE public.user_details
+(
+  id serial,
+  gender text,
+  username text NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT now()
+); 
+
+
+CREATE TABLE public.user_preferences
+(
+  id serial,
+  preference_id integer,
+  username text NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT now()
+); 
+
+
+CREATE TABLE public.preferences
+(
+  id serial,
+  preference text,
+  created_at TIMESTAMP NOT NULL DEFAULT now()
+); 
+
+
+

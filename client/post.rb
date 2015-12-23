@@ -26,12 +26,6 @@ cl.connect
 cl.auth(password)
 
 
-iq = Jabber::Iq.new(:get, 'citiviti.com')
-# and ask for the version
-iq.query = Jabber::Version::IqQueryVersion.new
-
-cl.send(iq)
-
 puts "################### Posting "
 
 iqr = Jabber::Iq.new(:set, 'citiviti.com')

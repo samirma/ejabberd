@@ -311,7 +311,10 @@ add_new_post(LServer, Username, XML, LatituteAttr, LongitudeAttr) ->
 
 get_posts(LServer, LatituteAttr, LongitudeAttr) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, username, post, rate FROM posts;">>]).
+			    [<<"SELECT id, username, post, rate, rates_count, views_count FROM posts;">>]).
+
+update_view_post(LServer, PostId) ->
+    ejabberd_odbc:sql_query(LServer, [<<"UPDATE views_count set views_count + 1 FROM posts WHERE id=">>,  PostId, <<";">>]).
 
 %%%%%%% Comments
 
@@ -322,6 +325,17 @@ add_new_comment(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr)
 get_comments(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer,
 			    [<<"SELECT id, commentary, rate FROM comments where post_id=">>,  PostId, <<";">>]).
+
+
+%%%%%% Register
+
+create_citiviti_user(LServer, Username, Phone, Code) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into registed_users(username, phone_id) "
+				 "values ('">>, Phone, <<"', SELECT id FROM user_phone WHERE phone = '">>, Phone, <<"' AND register_code ='">>, Code, <<"');">>]).
+
+request_registration(LServer, Phone, Code) -> 
+    ejabberd_odbc:sql_query(LServer,[<<"insert into user_phone(phone, register_code) values ('">>, Phone, <<"', '">>, Code, <<"');">>]).
+
 
 %%%%%%% 
 
