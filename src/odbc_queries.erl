@@ -337,6 +337,17 @@ request_registration(LServer, Phone, Code) ->
     ejabberd_odbc:sql_query(LServer,[<<"insert into user_phone(phone, register_code) values ('">>, Phone, <<"', '">>, Code, <<"');">>]).
 
 
+%%%%%%% Preferences
+
+set_preference(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, location) "
+				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
+
+get_preferences(LServer) ->
+    ejabberd_odbc:sql_query(LServer,
+			    [<<"SELECT id, preference FROM preferences ORDER BY preference;">>]).
+
+
 %%%%%%% 
 
 
