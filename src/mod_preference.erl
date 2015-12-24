@@ -43,7 +43,7 @@ process_local_iq(_From, To,
 			IQ#iq{type = result, sub_el = [#xmlel{name = <<"comment">>, attrs = [], children = []}]};
 		get ->
 			?INFO_MSG("preferences ~n", []),
-			Prefs = process_comments_get(To#jid.lserver, PostId),
+			Prefs = get_preferences(To#jid.lserver, PostId),
 			Result = [#xmlel{name = <<"preferences">>, attrs = [], children = Prefs}],
 			IQ#iq{type = result, sub_el = Result}
 	end.
@@ -51,8 +51,8 @@ process_local_iq(_From, To,
 
 
 
-process_comments_get(LServer, PostId) ->
-    case catch odbc_queries:get_comments(LServer, PostId) of
+get_preferences(LServer, PostId) ->
+    case catch odbc_queries:get_preferences(LServer, PostId) of
       {selected, [<<"id">>, <<"preferences">>], Posts} ->
 	  LItems = lists:map(fun ([N,P]) ->
 				     #xmlel{name = <<"comment">>,

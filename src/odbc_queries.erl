@@ -60,8 +60,8 @@
 	 set_roster_version/2, opt_type/1,
 	 add_new_post/5, get_posts/3,
 	 get_comments/2,
-	 add_new_comment/6
-	 
+	 add_new_comment/6,
+	 hidder_from_user/4
 		 
 ]).
 
@@ -347,6 +347,20 @@ get_preferences(LServer) ->
     ejabberd_odbc:sql_query(LServer,
 			    [<<"SELECT id, preference FROM preferences ORDER BY preference;">>]).
 
+
+%%%%%%% Preferences
+
+hidder_from_user(LServer, Username, Id, Type) ->
+
+	case Type of
+		post ->
+			Entity = "hidden_posts";
+		comment ->
+			Entity = "hidden_comments"
+	end,
+
+    ejabberd_odbc:sql_query(LServer,[<<"insert into ">>, "aaaa", <<"(hidden_from_user, hidden_id ) "
+				 "values ('">>, Username, <<"', ">>, Id, <<");">>]).
 
 %%%%%%% 
 

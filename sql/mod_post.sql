@@ -51,8 +51,7 @@ CREATE TABLE public.rates
 CREATE TABLE public.hidden_posts
 (
   id serial,
-  post_id integer,
-  comment_id integer,
+  hidden_id integer,
   hidden_from_user text NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
@@ -60,7 +59,7 @@ CREATE TABLE public.hidden_posts
 CREATE TABLE public.hidden_comments
 (
   id serial,
-  comment_id integer,
+  hidden_id integer,
   hidden_from_user text NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
