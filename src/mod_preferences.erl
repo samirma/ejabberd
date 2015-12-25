@@ -1,4 +1,4 @@
--module(mod_rate).
+-module(mod_preferences).
 
 -author('santonio@citiviti.com').
 
@@ -17,12 +17,12 @@ start(Host, Opts) ->
 	IQDisc = gen_mod:get_opt(iqdisc, Opts, fun gen_iq_handler:check_type/1,
 							 one_queue),
 	gen_iq_handler:add_iq_handler(ejabberd_local, Host,
-								  ?NS_RATE, ?MODULE, process_local_iq,
+								  ?NS_CITIVITI_PREFERENCE, ?MODULE, process_local_iq,
 								  IQDisc).
 
 stop(Host) ->
 	gen_iq_handler:remove_iq_handler(ejabberd_local, Host,
-									 ?NS_RATE).
+									 ?NS_CITIVITI_PREFERENCE).
 
 process_local_iq(_From, To,
 				 #iq{id = _ID, type = Type, xmlns = _XMLNS,
@@ -36,12 +36,25 @@ process_local_iq(_From, To,
 	case Type of
 		set ->
 			?INFO_MSG("Rate incomming ~n", []),
-
-		    
 			IQ#iq{type = result, sub_el = []};
 		get ->
-			IQ#iq{type = error, sub_el = []}
+			Prefs = get_preferences(To#jid.lserver),
+			Result = [#xmlel{name = <<"prefererences">>, attrs = [], children = Prefs}],
+			IQ#iq{type = result, sub_el = Result}
 	end.
 
 
 
+
+get_preferences(LServer) ->
+    case catch ejabberd_odbc:get_preferences(LServer) of
+      {selected, [<<"id">>, <<"username">>, <<"post">>, <<"rate">>, <<"rates_count">>, <<"views_count">>], Posts} ->
+	  LItems = lists:map(fun ([N,U,P, R, H, V]) ->
+				     #xmlel{name = <<"post">>,
+					    attrs = [{<<"id">>, N}, {<<"user">>, U}, {<<"rate">>, R}, {<<"rates_count">>, R}, {<<"views">>, V}],
+					    children = [{xmlcdata, P}]}
+			     end,
+			     Posts),
+	  LItems;
+      _ -> error
+    end.
