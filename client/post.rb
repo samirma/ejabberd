@@ -5,7 +5,7 @@ require 'xmpp4r'
 require 'xmpp4r/client'
 include Jabber
 
-userString = 'user3@citiviti.com'
+userString = 'anonymous_user1@citiviti.com'
 password = '12345'
 
 if ARGV.size == 2
@@ -35,8 +35,8 @@ qr.add_namespace('jabber:iq:post')
 
 postXml = REXML::Element.new('post')
 postXml.add_text("Hello post world with gps attibutes")
-postXml.add_attribute("latitude","-118.4079")
-postXml.add_attribute("longitude","31.9434")
+postXml.add_attribute("latitude","-22.949991966204575")
+postXml.add_attribute("longitude","-43.15472602844238")
 qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
@@ -52,8 +52,8 @@ qr.add_namespace('jabber:iq:post')
 
 
 postXml = REXML::Element.new('post')
-postXml.add_attribute("latitude","-118.4079")
-postXml.add_attribute("longitude","31.9434")
+postXml.add_attribute("latitude","-22.949991966204575")
+postXml.add_attribute("longitude","-43.15472602844238")
 qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
@@ -67,8 +67,8 @@ qr.add_namespace('jabber:iq:comment')
 postXml = REXML::Element.new('comment')
 postXml.add_attribute("post_id","1")
 postXml.add_text("My comment")
-postXml.add_attribute("latitude","-118.4079")
-postXml.add_attribute("longitude","31.9434")
+postXml.add_attribute("latitude","-22.949991966204575")
+postXml.add_attribute("longitude","-43.15472602844238")
 qr.add(postXml)
 iqr.add(qr)
 cl.send iqr
