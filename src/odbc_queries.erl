@@ -62,7 +62,7 @@
 	 get_posts/4,
 	 get_comments/2,
 	 add_new_comment/6,
-	 get_preferences/1,
+	 get_preferences_list/1,
 	 hidder_from_user/4
 		 
 ]).
@@ -346,12 +346,13 @@ set_preference(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr) 
     ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, localization) "
 				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', ST_MakePoint(">>, LongitudeAttr, <<", ">>, LongitudeAttr, <<"));">>]).
 
-get_preferences(LServer) ->
+get_preferences_list(LServer) ->
+	?INFO_MSG("get_preferences_list", []),
     ejabberd_odbc:sql_query(LServer,
 			    [<<"SELECT id, preference FROM preferences ORDER BY preference;">>]).
 
 
-%%%%%%% Preferences
+%%%%%%% Hidder Post
 
 hidder_from_user(LServer, Username, Id, Type) ->
 

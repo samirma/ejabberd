@@ -28,33 +28,32 @@ process_local_iq(_From, To,
 				 #iq{id = _ID, type = Type, xmlns = _XMLNS,
 					 sub_el = SubEl} =
 					 IQ) ->
-	PTag = xml:get_subtag(SubEl, <<"rate">>),
-	PostId = xml:get_tag_attr_s(<<"post_id">>, PTag), 
-	TypeRate = xml:get_tag_attr_s(<<"type">>, PTag), 
+
 	#jid{luser = LUser, lserver = LServer} = _From,
-	Username = ejabberd_odbc:escape(LUser),
+	?INFO_MSG("Preferences ~n", []),
 	case Type of
 		set ->
-			?INFO_MSG("Rate incomming ~n", []),
-			IQ#iq{type = result, sub_el = []};
+			IQ#iq{type = set_result, sub_el = []};
 		get ->
-			Prefs = get_preferences(To#jid.lserver),
-			Result = [#xmlel{name = <<"prefererences">>, attrs = [], children = Prefs}],
-			IQ#iq{type = result, sub_el = Result}
+			?INFO_MSG("Getting preferences ~n", []),
+			Prefs = process_get(To#jid.lserver),
+			Xmls = [#xmlel{name = <<"prefererences">>, attrs = [], children = Prefs}],
+			IQ#iq{type = result, sub_el = Xmls}
 	end.
 
 
 
 
-get_preferences(LServer) ->
-    case catch ejabberd_odbc:get_preferences(LServer) of
-      {selected, [<<"id">>, <<"username">>, <<"post">>, <<"rate">>, <<"rates_count">>, <<"views_count">>], Posts} ->
-	  LItems = lists:map(fun ([N,U,P, R, H, V]) ->
-				     #xmlel{name = <<"post">>,
-					    attrs = [{<<"id">>, N}, {<<"user">>, U}, {<<"rate">>, R}, {<<"rates_count">>, R}, {<<"views">>, V}],
-					    children = [{xmlcdata, P}]}
+process_get(LServer) ->
+	?INFO_MSG("Teste!!! ~p ~n", [odbc_queries:get_preferences_list(LServer)]),
+	case catch odbc_queries:get_preferences_list(LServer) of
+      {selected,[<<"id">>,<<"preference">>], Xmls} ->
+	  LItems = lists:map(fun ([Id,Pref]) ->
+				     #xmlel{name = <<"preference">>,
+					    attrs = [{<<"id">>, Id}],
+					    children = [{xmlcdata, Pref}]}
 			     end,
-			     Posts),
+			     Xmls),
 	  LItems;
       _ -> error
     end.

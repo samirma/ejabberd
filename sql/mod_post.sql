@@ -130,4 +130,11 @@ CREATE TABLE public.preferences
 ); 
 
 
+INSERT INTO "public".preferences (preference) 
+	VALUES ('Sports')
+INSERT INTO "public".preferences (preference) 
+	VALUES ('Star War')
+INSERT INTO "public".preferences (preference) 
+	VALUES ('Music')
+
 
