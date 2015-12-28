@@ -38,11 +38,12 @@ process_local_iq(_From, To,
 	Username = ejabberd_odbc:escape(LUser),
 	case Type of
 		set ->
-			?INFO_MSG("Post incomming ~p on ~p ~p~n", [PostText, Lat, Long]),
-			odbc_queries:add_new_post(To#jid.lserver, Username, PostText, Lat, Long),
+			?INFO_MSG("Post incomming ~p on Long ~p Lat ~p~n", [PostText, Long, Lat]),
+			odbc_queries:add_new_post(To#jid.lserver, Username, PostText, Long, Lat),
 			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = []}]};
 		get ->
-			Posts = process_posts_get(To#jid.lserver, Lat, Long),
+			Range = xml:get_tag_attr_s(<<"within">>, PTag),
+			Posts = process_posts_get(To#jid.lserver, Lat, Long, Range),
 			Result = [#xmlel{name = <<"posts">>, attrs = [], children = Posts}],
 			IQ#iq{type = result, sub_el = Result}
 	end.
@@ -50,8 +51,8 @@ process_local_iq(_From, To,
 
 
 
-process_posts_get(LServer, LatituteAttr, LongitudeAttr) ->
-    case catch list_posts(LServer, LatituteAttr, LongitudeAttr) of
+process_posts_get(LServer, LatituteAttr, LongitudeAttr, Range) ->
+    case catch odbc_queries:get_posts(LServer, LatituteAttr, LongitudeAttr, Range) of
       {selected, [<<"id">>, <<"username">>, <<"post">>, <<"rate">>, <<"rates_count">>, <<"views_count">>], Posts} ->
 	  LItems = lists:map(fun ([N,U,P, R, H, V]) ->
 				     #xmlel{name = <<"post">>,
@@ -64,8 +65,6 @@ process_posts_get(LServer, LatituteAttr, LongitudeAttr) ->
     end.
 
 
-list_posts(LServer, LatituteAttr, LongitudeAttr) ->
-	odbc_queries:get_posts(LServer, LatituteAttr, LongitudeAttr).
 
 
 mod_opt_type(iqdisc) -> fun gen_iq_handler:check_type/1;

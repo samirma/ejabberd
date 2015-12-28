@@ -7,14 +7,20 @@ DROP TABLE public.rates;
 DROP TABLE public.wifi_posts;
 DROP TABLE public.hidden_posts;
 DROP TABLE public.hidden_comments;
-DROP TABLE public.wifi_locations;
+DROP TABLE public.wifi_localizations;
+
+DROP TABLE public.registed_users;
+DROP TABLE public.user_phone;
+DROP TABLE public.user_details;
+DROP TABLE public.user_preferences;
+DROP TABLE public.preferences;
 
 
 CREATE TABLE public.posts (
     id SERIAL UNIQUE,
     username text NOT NULL,
     post text NOT NULL,
-    location geometry NULL,
+    localization geometry NULL,
     rate integer NOT NULL DEFAULT 0,
     rates_count integer NOT NULL DEFAULT 0,
     views_count integer NOT NULL DEFAULT 0,
@@ -30,7 +36,7 @@ CREATE TABLE public.comments
   post_id integer NOT NULL,
   username text NOT NULL,
   commentary text NOT NULL,
-  location geometry NULL,
+  localization geometry NULL,
   rate integer NOT NULL DEFAULT 0,
   rates_count integer NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT now()
@@ -64,11 +70,11 @@ CREATE TABLE public.hidden_comments
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
 
-CREATE TABLE public.wifi_locations
+CREATE TABLE public.wifi_localizations
 (
   id serial,
   wifi_name text,
-  location geometry,
+  localization geometry,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
 
@@ -76,7 +82,7 @@ CREATE TABLE public.wifi_locations
 
 CREATE TABLE public.wifi_posts
 (
-  wifi_locations_id integer,
+  wifi_localizations_id integer,
   post_id integer,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 

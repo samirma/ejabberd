@@ -58,7 +58,8 @@
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
 	 set_roster_version/2, opt_type/1,
-	 add_new_post/5, get_posts/3,
+	 add_new_post/5, 
+	 get_posts/4,
 	 get_comments/2,
 	 add_new_comment/6,
 	 get_preferences/1,
@@ -305,14 +306,15 @@ add_spool_sql(Username, XML) ->
 
 
 
-add_new_post(LServer, Username, XML, LatituteAttr, LongitudeAttr) ->
-    ejabberd_odbc:sql_query(LServer,[<<"insert into posts(username, post, location) "
-				 "values ('">>, Username, <<"', '">>, XML, <<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
+add_new_post(LServer, Username, XML, LongitudeAttr, LatituteAttr) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into posts(username, post, localization) "
+				 "values ('">>, Username, <<"', '">>, XML, <<"', ST_MakePoint(">>, LongitudeAttr, <<", ">>, LatituteAttr, <<"));">>]).
 
 
-get_posts(LServer, LatituteAttr, LongitudeAttr) ->
+get_posts(LServer, LatituteAttr, LongitudeAttr, Range) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, username, post, rate, rates_count, views_count FROM posts;">>]).
+			    [<<"SELECT id, username, post, rate, rates_count, views_count FROM posts WHERE " 
+   "st_distance_sphere(ST_MakePoint(">>, LongitudeAttr, <<", ">>, LatituteAttr, <<"), localization) < ">>, Range, <<"  ORDER BY created_at DESC;">>]).
 
 update_view_post(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer, [<<"UPDATE views_count set views_count + 1 FROM posts WHERE id=">>,  PostId, <<";">>]).
@@ -320,12 +322,12 @@ update_view_post(LServer, PostId) ->
 %%%%%%% Comments
 
 add_new_comment(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr) ->
-    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, location) "
-				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
+    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, localization) "
+				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', ST_MakePoint(">>, LongitudeAttr, <<", ">>, LongitudeAttr, <<"));">>]).
 
 get_comments(LServer, PostId) ->
     ejabberd_odbc:sql_query(LServer,
-			    [<<"SELECT id, commentary, rate FROM comments where post_id=">>,  PostId, <<";">>]).
+			    [<<"SELECT id, commentary, rate FROM comments where post_id=">>,  PostId, <<" ORDER BY created_at DESC;">>]).
 
 
 %%%%%% Register
@@ -341,8 +343,8 @@ request_registration(LServer, Phone, Code) ->
 %%%%%%% Preferences
 
 set_preference(LServer, Username, PostId, Comment, LatituteAttr, LongitudeAttr) ->
-    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, location) "
-				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', 'POINT(">>, LongitudeAttr, <<" ">>, LongitudeAttr, <<")');">>]).
+    ejabberd_odbc:sql_query(LServer,[<<"insert into comments(username, post_id, commentary, localization) "
+				 "values ('">>, Username, <<"', ">>, PostId, <<", '">>, Comment,<<"', ST_MakePoint(">>, LongitudeAttr, <<", ">>, LongitudeAttr, <<"));">>]).
 
 get_preferences(LServer) ->
     ejabberd_odbc:sql_query(LServer,
