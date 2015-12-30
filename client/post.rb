@@ -106,6 +106,20 @@ iqr.add(qr)
 cl.send iqr
 
 
+puts "################# Rate"
+
+
+iqr = Jabber::Iq.new(:rate, 'citiviti.com')
+qr = Jabber::IqQuery.new
+qr.add_namespace('jabber:iq:post')
+postXml = REXML::Element.new('post')
+postXml.add_attribute("post_id","1")
+postXml.add_attribute("rate","up")
+qr.add(postXml)
+iqr.add(qr)
+cl.send iqr
+
+
 sleep(10)
 
 cl.close

@@ -28,20 +28,18 @@ process_local_iq(_From, To,
 				 #iq{id = _ID, type = Type, xmlns = _XMLNS,
 					 sub_el = SubEl} =
 					 IQ) ->
-	PTag = xml:get_subtag(SubEl, <<"rate">>),
+	PTag = xml:get_subtag(SubEl, <<"post">>),
 	PostId = xml:get_tag_attr_s(<<"post_id">>, PTag), 
-	TypeRate = xml:get_tag_attr_s(<<"type">>, PTag), 
+	Rate = xml:get_tag_attr_s(<<"rate">>, PTag),
 	#jid{luser = LUser, lserver = LServer} = _From,
 	Username = ejabberd_odbc:escape(LUser),
 	case Type of
 		set ->
-			?INFO_MSG("Rate incomming ~n", []),
-
-		    
+			?INFO_MSG("Rating Post ~p ~p ~n", [PostId, Rate]),
+			odbc_queries:rate_post(To#jid.lserver, Username, PostId, Rate),
 			IQ#iq{type = result, sub_el = []};
 		get ->
 			IQ#iq{type = error, sub_el = []}
 	end.
-
 
 

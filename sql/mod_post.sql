@@ -131,10 +131,10 @@ CREATE TABLE public.preferences
 
 
 INSERT INTO "public".preferences (preference) 
-	VALUES ('Sports')
+	VALUES ('Sports');
 INSERT INTO "public".preferences (preference) 
-	VALUES ('Star War')
+	VALUES ('Star War');
 INSERT INTO "public".preferences (preference) 
-	VALUES ('Music')
+	VALUES ('Music');
 
 

@@ -58,6 +58,8 @@
 	 del_privacy_lists/3, set_vcard/26, get_vcard/2,
 	 escape/1, count_records_where/3, get_roster_version/2,
 	 set_roster_version/2, opt_type/1,
+	 update_view_post/2,
+	 rate_post/4,
 	 add_new_post/5, 
 	 get_posts/4,
 	 get_comments/2,
@@ -317,7 +319,25 @@ get_posts(LServer, LatituteAttr, LongitudeAttr, Range) ->
    "st_distance_sphere(ST_MakePoint(">>, LongitudeAttr, <<", ">>, LatituteAttr, <<"), localization) < ">>, Range, <<"  ORDER BY created_at DESC;">>]).
 
 update_view_post(LServer, PostId) ->
-    ejabberd_odbc:sql_query(LServer, [<<"UPDATE views_count set views_count + 1 FROM posts WHERE id=">>,  PostId, <<";">>]).
+    ejabberd_odbc:sql_query(LServer, [<<"UPDATE posts set views_count set views_count + 1 WHERE id=">>,  PostId, <<";">>]).
+
+
+rate_post(LServer, Username, PostId, Rate) ->
+	ejabberd_odbc:sql_query(LServer, [<<"DELETE FROM rates posts WHERE post_id=">>,  PostId, <<" AND username='">>, Username, <<"';">>]),
+	Value = get_rate_value(Rate),
+	insert_rate(LServer, Username, PostId, Value),
+    ejabberd_odbc:sql_query(LServer, [<<"UPDATE posts set rates_count = (select count(id) FROM rates WHERE post_id=">>,  PostId, <<" ), rate = (select SUM(rate) FROM rates WHERE post_id=">>,  PostId, <<" ) WHERE id=">>,  PostId, <<";">>]).
+
+insert_rate(LServer, Username, PostId, Value) ->
+	?INFO_MSG("Rate value ~p  ~p ~n", [PostId, Value]),
+	ejabberd_odbc:sql_query(LServer, [<<"insert into public.rates (post_id, username, rate) VALUES (">>,  PostId, <<", '">>, Username, <<"', ">>,  Value, <<") ;">>]).
+	
+get_rate_value(Rate) ->
+    Code = if
+        Rate =:= <<"up">> -> <<"1">>;
+        Rate =:= <<"down">> -> <<"-1">>;
+        true -> unknown
+    end.
 
 %%%%%%% Comments
 

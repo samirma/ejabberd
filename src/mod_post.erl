@@ -34,9 +34,14 @@ process_local_iq(_From, To,
 	PostText = xml:get_tag_cdata(PTag),
 	Lat = xml:get_tag_attr_s(<<"latitude">>, PTag), 
 	Long = xml:get_tag_attr_s(<<"longitude">>, PTag),
+	Rate = xml:get_tag_attr_s(<<"rate">>, PTag),
 	#jid{luser = LUser, lserver = LServer} = _From,
 	Username = ejabberd_odbc:escape(LUser),
 	case Type of
+		rate ->
+			?INFO_MSG("Rating Post ~p~n", [Rate]),
+			odbc_queries:rate_post(To#jid.lserver, Username, PostText, Rate),
+			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = []}]};
 		set ->
 			?INFO_MSG("Post incomming ~p on Long ~p Lat ~p~n", [PostText, Long, Lat]),
 			odbc_queries:add_new_post(To#jid.lserver, Username, PostText, Long, Lat),
@@ -54,9 +59,9 @@ process_local_iq(_From, To,
 process_posts_get(LServer, LatituteAttr, LongitudeAttr, Range) ->
     case catch odbc_queries:get_posts(LServer, LatituteAttr, LongitudeAttr, Range) of
       {selected, [<<"id">>, <<"username">>, <<"post">>, <<"rate">>, <<"rates_count">>, <<"views_count">>], Posts} ->
-	  LItems = lists:map(fun ([N,U,P, R, H, V]) ->
+	  LItems = lists:map(fun ([N, U, P, R, H, V]) ->
 				     #xmlel{name = <<"post">>,
-					    attrs = [{<<"id">>, N}, {<<"user">>, U}, {<<"rate">>, R}, {<<"rates_count">>, R}, {<<"views">>, V}],
+					    attrs = [{<<"id">>, N}, {<<"user">>, U}, {<<"rate">>, R}, {<<"rates_count">>, H}, {<<"views">>, V}],
 					    children = [{xmlcdata, P}]}
 			     end,
 			     Posts),

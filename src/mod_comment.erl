@@ -43,7 +43,9 @@ process_local_iq(_From, To,
 			IQ#iq{type = result, sub_el = [#xmlel{name = <<"comment">>, attrs = [], children = []}]};
 		get ->
 			?INFO_MSG("Geting comments from post  ~p ~n", [PostId]),
-			Comments = process_comments_get(To#jid.lserver, PostId),
+			Server = To#jid.lserver,
+			odbc_queries:update_view_post(Server, PostId),
+			Comments = process_comments_get(Server, PostId),
 			Result = [#xmlel{name = <<"comments">>, attrs = [{<<"post_id">>, PostId}], children = Comments}],
 			IQ#iq{type = result, sub_el = Result}
 	end.
