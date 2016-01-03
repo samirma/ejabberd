@@ -7,8 +7,6 @@ include Jabber
 
 number = rand(1000)
 
-number = 326
-
 userString = "anonymous_#{number}@citiviti.com"
 password = '12345'
 
@@ -39,7 +37,7 @@ qr.add(postXml)
 iqr.add(qr)
 
 #puts "##################### Register request"
-#cl.send iqr
+cl.send iqr
 
 
 iqr = Jabber::Iq.new(:set, 'citiviti.com')
