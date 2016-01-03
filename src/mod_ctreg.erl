@@ -6,8 +6,7 @@
 
 -behaviour(gen_mod).
 
--export([start/2, stop/1, process_local_iq/3,
-		 mod_opt_type/1]).
+-export([start/2, stop/1, process_local_iq/3]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -29,25 +28,20 @@ process_local_iq(_From, To,
 				 #iq{id = _ID, type = Type, xmlns = _XMLNS,
 					 sub_el = SubEl} =
 					 IQ) ->
-	PTag = xml:get_subtag(SubEl, <<"rate">>),
-	PostId = xml:get_tag_attr_s(<<"post_id">>, PTag), 
-	TypeRate = xml:get_tag_attr_s(<<"type">>, PTag), 
+	PTag = xml:get_subtag(SubEl, <<"register">>),
+	PhoneNumber = xml:get_tag_attr_s(<<"request_number">>, PTag), 
 	#jid{luser = LUser, lserver = LServer} = _From,
 	Username = ejabberd_odbc:escape(LUser),
+	?INFO_MSG("Request register incomming from ~p to phone ~p ~n", [Username, PhoneNumber]),
+	LServer = To#jid.lserver,
 	case Type of
 		set ->
-			?INFO_MSG("Rate incomming ~n", []),
-
-		    
+			Code = xml:get_tag_attr_s(<<"code">>, PTag), 
+			Result = mod_citiviti_register:register_user(LServer, Username, PhoneNumber, Code),
 			IQ#iq{type = result, sub_el = []};
 		get ->
-			IQ#iq{type = error, sub_el = []}
+			Result = mod_citiviti_register:request_registration(LServer, Username, PhoneNumber),
+			IQ#iq{type = result, sub_el = []}
 	end.
 
 
-
-
-mod_opt_type(iqdisc) -> fun gen_iq_handler:check_type/1;
-mod_opt_type(show_os) ->
-	fun (B) when is_boolean(B) -> B end;
-mod_opt_type(_) -> [iqdisc, show_os].

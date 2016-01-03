@@ -65,7 +65,10 @@
 	 get_comments/2,
 	 add_new_comment/6,
 	 get_preferences_list/1,
-	 hidder_from_user/4
+	 hidder_from_user/4,
+	 get_registration_id/4,
+	 create_citiviti_user/3,
+	 request_registration/4
 		 
 ]).
 
@@ -319,7 +322,7 @@ get_posts(LServer, LatituteAttr, LongitudeAttr, Range) ->
    "st_distance_sphere(ST_MakePoint(">>, LongitudeAttr, <<", ">>, LatituteAttr, <<"), localization) < ">>, Range, <<"  ORDER BY created_at DESC;">>]).
 
 update_view_post(LServer, PostId) ->
-    ejabberd_odbc:sql_query(LServer, [<<"UPDATE posts set views_count set views_count + 1 WHERE id=">>,  PostId, <<";">>]).
+    ejabberd_odbc:sql_query(LServer, [<<"UPDATE posts set views_count = views_count + 1 WHERE id=">>,  PostId, <<";">>]).
 
 
 rate_post(LServer, Username, PostId, Rate) ->
@@ -352,12 +355,16 @@ get_comments(LServer, PostId) ->
 
 %%%%%% Register
 
-create_citiviti_user(LServer, Username, Phone, Code) ->
-    ejabberd_odbc:sql_query(LServer,[<<"insert into registed_users(username, phone_id) "
-				 "values ('">>, Phone, <<"', SELECT id FROM user_phone WHERE phone = '">>, Phone, <<"' AND register_code ='">>, Code, <<"');">>]).
+create_citiviti_user(LServer, Username, IdPhone) ->
+    ejabberd_odbc:sql_query(LServer,[<<"insert into registed_users(username, phone_id) values ('">>, Username, <<"', ">>, IdPhone, <<");">>]).
 
-request_registration(LServer, Phone, Code) -> 
-    ejabberd_odbc:sql_query(LServer,[<<"insert into user_phone(phone, register_code) values ('">>, Phone, <<"', '">>, Code, <<"');">>]).
+request_registration(LServer, Username, Phone, Code) -> 
+    ejabberd_odbc:sql_query(LServer,[<<"insert into user_phone(username, phone, register_code) values ('">>, Username, <<"', '">>, Phone, <<"', '">>, Code, <<"');">>]).
+
+get_registration_id(LServer, Username, Phone, Code) -> 
+	Query = [<<"SELECT id FROM user_phone WHERE username = '">>, Username, <<"' AND phone = '">>, Phone, <<"' AND register_code = '">>, Code, <<"';">>],
+	?INFO_MSG("Query ~p ~n", [Query]),
+    ejabberd_odbc:sql_query(LServer,Query).
 
 
 %%%%%%% Preferences

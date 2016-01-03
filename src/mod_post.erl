@@ -38,10 +38,6 @@ process_local_iq(_From, To,
 	#jid{luser = LUser, lserver = LServer} = _From,
 	Username = ejabberd_odbc:escape(LUser),
 	case Type of
-		rate ->
-			?INFO_MSG("Rating Post ~p~n", [Rate]),
-			odbc_queries:rate_post(To#jid.lserver, Username, PostText, Rate),
-			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [], children = []}]};
 		set ->
 			?INFO_MSG("Post incomming ~p on Long ~p Lat ~p~n", [PostText, Long, Lat]),
 			odbc_queries:add_new_post(To#jid.lserver, Username, PostText, Long, Lat),

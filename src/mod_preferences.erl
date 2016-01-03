@@ -45,7 +45,6 @@ process_local_iq(_From, To,
 
 
 process_get(LServer) ->
-	?INFO_MSG("Teste!!! ~p ~n", [odbc_queries:get_preferences_list(LServer)]),
 	case catch odbc_queries:get_preferences_list(LServer) of
       {selected,[<<"id">>,<<"preference">>], Xmls} ->
 	  LItems = lists:map(fun ([Id,Pref]) ->

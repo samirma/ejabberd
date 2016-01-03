@@ -32,7 +32,7 @@ puts "################# Get Preferences list"
 
 iqr = Jabber::Iq.new(:get, 'citiviti.com')
 qr = Jabber::IqQuery.new
-qr.add_namespace('jabber:iq:citivitipreference')
+qr.add_namespace('jabber:iq:citivitiregister')
 
 iqr.add(qr)
 cl.send iqr

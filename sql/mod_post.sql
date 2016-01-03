@@ -100,6 +100,7 @@ CREATE TABLE public.user_phone
 (
   id serial,
   phone text,
+  username text NOT NULL,
   register_code text,
   created_at TIMESTAMP NOT NULL DEFAULT now()
 ); 
