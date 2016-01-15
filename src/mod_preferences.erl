@@ -37,7 +37,7 @@ process_local_iq(_From, To,
 		get ->
 			?INFO_MSG("Getting preferences ~n", []),
 			Prefs = process_get(To#jid.lserver),
-			Xmls = [#xmlel{name = <<"preferences">>, attrs = [], children = Prefs}],
+			Xmls = [#xmlel{name = <<"preferences">>, attrs = [{<<"xmlns">>, ?NS_CITIVITI_PREFERENCE}], children = Prefs}],
 			IQ#iq{type = result, sub_el = Xmls}
 	end.
 
