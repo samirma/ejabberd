@@ -6,7 +6,7 @@
 %%% Created : 15 Aug 2014 by Evgeny Khramtsov <ekhramtsov@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2014-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2014-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ check_bl_c2s(_Acc, Addr, Lang) ->
 		true ->
 		    IP = jlib:ip_to_list(Addr),
 		    UnbanDate = format_date(
-				    calendar:now_to_universal_time(TS)),
+				    calendar:now_to_universal_time(seconds_to_now(TS))),
 		    LogReason = io_lib:fwrite(
 				  "Too many (~p) failed authentications "
 				  "from this IP address (~s). The address "
@@ -178,6 +178,9 @@ is_loaded_at_other_hosts(Host) ->
 	 (VHost) ->
 	      gen_mod:is_loaded(VHost, ?MODULE)
       end, ?MYHOSTS).
+
+seconds_to_now(Secs) ->
+    {Secs div 1000000, Secs rem 1000000, 0}.
 
 format_date({{Year, Month, Day}, {Hour, Minute, Second}}) ->
     io_lib:format("~2..0w:~2..0w:~2..0w ~2..0w.~2..0w.~4..0w",

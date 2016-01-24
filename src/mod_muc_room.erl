@@ -5,7 +5,7 @@
 %%% Created : 19 Mar 2003 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -35,6 +35,8 @@
 	 start/9,
 	 start/7,
 	 get_role/2,
+	 get_affiliation/2,
+	 is_occupant_or_admin/2,
 	 route/4]).
 
 %% gen_fsm callbacks
@@ -225,8 +227,9 @@ normal_state({route, From, <<"">>,
 	    <<"error">> ->
 		case is_user_online(From, StateData) of
 		  true ->
-		      ErrorText = <<"This participant is kicked from the "
-				    "room because he sent an error message">>,
+		      ErrorText = <<"It is not allowed to send error messages to the"
+				    " room. The participant (~s) has sent an error "
+				    "message (~s) and got kicked from the room">>,
 		      NewState = expulse_participant(Packet, From, StateData,
 						     translate:translate(Lang,
 									 ErrorText)),
@@ -512,9 +515,9 @@ normal_state({route, From, ToNick,
 	of
       {expulse_sender, Reason} ->
 	  ?DEBUG(Reason, []),
-	  ErrorText = <<"This participant is kicked from the "
-			"room because he sent an error message "
-			"to another participant">>,
+	  ErrorText = <<"It is not allowed to send error messages to the"
+		    " room. The participant (~s) has sent an error "
+		    "message (~s) and got kicked from the room">>,
 	  NewState = expulse_participant(Packet, From, StateData,
 					 translate:translate(Lang, ErrorText)),
 	  {next_state, normal_state, NewState};
@@ -1053,9 +1056,9 @@ process_presence(From, Nick,
 					     end,
 				    remove_online_user(From, NewState, Reason);
 				<<"error">> ->
-				    ErrorText =
-					<<"This participant is kicked from the "
-					  "room because he sent an error presence">>,
+				    ErrorText = <<"It is not allowed to send error messages to the"
+					" room. The participant (~s) has sent an error "
+					"message (~s) and got kicked from the room">>,
 				    expulse_participant(Packet, From, StateData,
 							translate:translate(Lang,
 									    ErrorText));
@@ -1310,11 +1313,13 @@ get_error_condition2(Packet) ->
 			  <- EEls],
     {condition, Condition}.
 
+make_reason(Packet, From, StateData, Reason1) ->
+    {ok, #user{nick = FromNick}} = (?DICT):find(jid:tolower(From), StateData#state.users),
+    Condition = get_error_condition(Packet),
+    iolist_to_binary(io_lib:format(Reason1, [FromNick, Condition])).
+
 expulse_participant(Packet, From, StateData, Reason1) ->
-    ErrorCondition = get_error_condition(Packet),
-    Reason2 = iolist_to_binary(
-                io_lib:format(binary_to_list(Reason1) ++ ": " ++ "~s",
-                              [ErrorCondition])),
+    Reason2 = make_reason(Packet, From, StateData, Reason1),
     NewState = add_user_presence_un(From,
 				    #xmlel{name = <<"presence">>,
 					   attrs =
@@ -4147,7 +4152,9 @@ process_iq_disco_info(_From, get, Lang, StateData) ->
        ++ case {gen_mod:is_loaded(StateData#state.server_host, mod_mam),
 		Config#config.mam} of
 	    {true, true} ->
-		[?FEATURE(?NS_MAM_0)];
+		[?FEATURE(?NS_MAM_TMP),
+		 ?FEATURE(?NS_MAM_0),
+		 ?FEATURE(?NS_MAM_1)];
 	    _ ->
 		[]
 	  end

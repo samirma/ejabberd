@@ -5,7 +5,7 @@
 %%% Created :  6 Dec 2002 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -432,9 +432,9 @@ stream_established({xmlstreamelement, El}, StateData) ->
 	  ?DEBUG("VERIFY KEY: ~p", [{To, From, Id, Key}]),
 	  LTo = jid:nameprep(To),
 	  LFrom = jid:nameprep(From),
-	  Type = case ejabberd_s2s:has_key({LTo, LFrom}, Key) of
-		   true -> <<"valid">>;
-		   _ -> <<"invalid">>
+	  Type = case ejabberd_s2s:make_key({LTo, LFrom}, Id) of
+		     Key -> <<"valid">>;
+		     _ -> <<"invalid">>
 		 end,
 	  send_element(StateData,
 		       #xmlel{name = <<"db:verify">>,

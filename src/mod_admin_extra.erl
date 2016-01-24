@@ -46,7 +46,7 @@
 	 private_get/4, private_set/3, srg_create/5,
 	 srg_delete/2, srg_list/1, srg_get_info/2,
 	 srg_get_members/2, srg_user_add/4, srg_user_del/4,
-	 send_message/5, send_stanza_c2s/4, privacy_set/3,
+	 send_message/5, send_stanza/3, send_stanza_c2s/4, privacy_set/3,
 	 stats/1, stats/2, mod_opt_type/1]).
 
 
@@ -303,7 +303,7 @@ commands() ->
 			desc = "Set multiple contents in a vCard subfield",
 			longdesc = Vcard2FieldsString ++ "\n\n" ++ Vcard1FieldsString ++ "\n" ++ VcardXEP,
 			module = ?MODULE, function = set_vcard,
-			args = [{user, binary}, {host, binary}, {name, binary}, {subname, binary}, {contents, {list, binary}}],
+			args = [{user, binary}, {host, binary}, {name, binary}, {subname, binary}, {contents, {list, {value, binary}}}],
 			result = {res, rescode}},
 
      #ejabberd_commands{name = add_rosteritem, tags = [roster],
@@ -478,6 +478,11 @@ commands() ->
 			module = ?MODULE, function = send_stanza_c2s,
 			args = [{user, binary}, {host, binary}, {resource, binary}, {stanza, binary}],
 			result = {res, rescode}},
+     #ejabberd_commands{name = send_stanza, tags = [stanza],
+			desc = "Send a stanza; provide From JID and valid To JID",
+			module = ?MODULE, function = send_stanza,
+			args = [{from, binary}, {to, binary}, {stanza, binary}],
+			result = {res, rescode}},
      #ejabberd_commands{name = privacy_set, tags = [stanza],
 			desc = "Send a IQ set privacy stanza for a local account",
 			module = ?MODULE, function = privacy_set,
@@ -485,7 +490,7 @@ commands() ->
 			result = {res, rescode}},
 
      #ejabberd_commands{name = stats, tags = [stats],
-			desc = "Get statistical value: registeredusers onlineusers onlineusersnode uptimeseconds",
+			desc = "Get statistical value: registeredusers onlineusers onlineusersnode uptimeseconds processes",
                         policy = admin,
 			module = ?MODULE, function = stats,
 			args = [{name, binary}],
@@ -697,7 +702,7 @@ set_random_password(User, Server, Reason) ->
     set_password_auth(User, Server, NewPass).
 
 build_random_password(Reason) ->
-    Date = jlib:timestamp_to_iso(calendar:universal_time()),
+    Date = jlib:timestamp_to_legacy(calendar:universal_time()),
     RandomString = randoms:get_string(),
     <<"BANNED_ACCOUNT--", Date/binary, "--", RandomString/binary, "--", Reason/binary>>.
 
@@ -1327,10 +1332,28 @@ build_packet(Type, Subject, Body) ->
      [{xmlel, <<"body">>, [], [{xmlcdata, Body}]} | Tail]
     }.
 
+send_stanza(FromString, ToString, Stanza) ->
+    case xml_stream:parse_element(Stanza) of
+	{error, Error} ->
+	    {error, Error};
+	XmlEl ->
+	    #xmlel{attrs = Attrs} = XmlEl,
+	    From = jid:from_string(proplists:get_value(<<"from">>, Attrs, FromString)),
+	    To = jid:from_string(proplists:get_value(<<"to">>, Attrs, ToString)),
+	    ejabberd_router:route(From, To, XmlEl)
+    end.
+
 send_stanza_c2s(Username, Host, Resource, Stanza) ->
-    C2sPid = ejabberd_sm:get_session_pid(Username, Host, Resource),
-    XmlEl = xml_stream:parse_element(Stanza),
-    p1_fsm:send_event(C2sPid, {xmlstreamelement, XmlEl}).
+    case {xml_stream:parse_element(Stanza),
+          ejabberd_sm:get_session_pid(Username, Host, Resource)}
+    of
+	{{error, Error}, _} ->
+	    {error, Error};
+	{_, none} ->
+	    {error, no_session};
+	{XmlEl, C2sPid} ->
+	    p1_fsm:send_event(C2sPid, {xmlstreamelement, XmlEl})
+    end.
 
 privacy_set(Username, Host, QueryS) ->
     From = jid:make(Username, Host, <<"">>),
@@ -1353,6 +1376,7 @@ privacy_set(Username, Host, QueryS) ->
 stats(Name) ->
     case Name of
 	<<"uptimeseconds">> -> trunc(element(1, erlang:statistics(wall_clock))/1000);
+	<<"processes">> -> length(erlang:processes());
 	<<"registeredusers">> -> lists:foldl(fun(Host, Sum) -> ejabberd_auth:get_vh_registered_users_number(Host) + Sum end, 0, ?MYHOSTS);
 	<<"onlineusersnode">> -> length(ejabberd_sm:dirty_get_my_sessions_list());
 	<<"onlineusers">> -> length(ejabberd_sm:dirty_get_sessions_list())

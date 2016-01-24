@@ -5,7 +5,7 @@
 %%% Created : 20 Aug 2015 by Holger Weiss <holger@zedat.fu-berlin.de>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2015   ProcessOne
+%%% ejabberd, Copyright (C) 2015-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -43,7 +43,6 @@
 	 {<<".bz2">>, <<"application/x-bzip2">>},
 	 {<<".gif">>, <<"image/gif">>},
 	 {<<".gz">>, <<"application/x-gzip">>},
-	 {<<".html">>, <<"text/html">>},
 	 {<<".jpeg">>, <<"image/jpeg">>},
 	 {<<".jpg">>, <<"image/jpeg">>},
 	 {<<".mp3">>, <<"audio/mpeg">>},
@@ -109,7 +108,7 @@
 	 get_url                :: binary(),
 	 service_url            :: binary() | undefined,
 	 thumbnail              :: boolean(),
-	 slots = dict:new()     :: term()}). % dict:dict() requires Erlang 17.
+	 slots = #{}            :: map()}).
 
 -record(media_info,
 	{type   :: binary(),
@@ -393,9 +392,17 @@ code_change(_OldVsn, #state{server_host = ServerHost} = State, _Extra) ->
 -spec process([binary()], #request{})
       -> {pos_integer(), [{binary(), binary()}], binary()}.
 
-process([_UserDir, _RandDir, _FileName] = Slot,
-	#request{method = 'PUT', host = Host, ip = IP, data = Data}) ->
-    Proc = gen_mod:get_module_proc(Host, ?PROCNAME),
+process(LocalPath, #request{method = Method, host = Host, ip = IP})
+    when length(LocalPath) < 3,
+	 Method == 'PUT' orelse
+	 Method == 'GET' orelse
+	 Method == 'HEAD' ->
+    ?DEBUG("Rejecting ~s request from ~s for ~s: Too few path components",
+	   [Method, ?ADDR_TO_STR(IP), Host]),
+    http_response(Host, 404);
+process(_LocalPath, #request{method = 'PUT', host = Host, ip = IP,
+			     data = Data} = Request) ->
+    {Proc, Slot} = parse_http_request(Request),
     case catch gen_server:call(Proc, {use_slot, Slot}) of
 	{ok, Size, Path, FileMode, DirMode, GetPrefix, Thumbnail}
 	    when byte_size(Data) == Size ->
@@ -412,7 +419,7 @@ process([_UserDir, _RandDir, _FileName] = Slot,
 			       [Path, ?ADDR_TO_STR(IP), Host, ?FORMAT(Error)]),
 		    http_response(Host, 500)
 	    end;
-	{ok, Size, Path} ->
+	{ok, Size, Path, _FileMode, _DirMode, _GetPrefix, _Thumbnail} ->
 	    ?INFO_MSG("Rejecting file ~s from ~s for ~s: Size is ~B, not ~B",
 		      [Path, ?ADDR_TO_STR(IP), Host, byte_size(Data), Size]),
 	    http_response(Host, 413);
@@ -425,11 +432,10 @@ process([_UserDir, _RandDir, _FileName] = Slot,
 		       [?ADDR_TO_STR(IP), Host, Error]),
 	    http_response(Host, 500)
     end;
-process([_UserDir, _RandDir, FileName] = Slot,
-	#request{method = Method, host = Host, ip = IP})
+process(_LocalPath, #request{method = Method, host = Host, ip = IP} = Request)
     when Method == 'GET';
 	 Method == 'HEAD' ->
-    Proc = gen_mod:get_module_proc(Host, ?PROCNAME),
+    {Proc, [_UserDir, _RandDir, FileName] = Slot} = parse_http_request(Request),
     case catch gen_server:call(Proc, get_docroot) of
 	{ok, DocRoot} ->
 	    Path = str:join([DocRoot | Slot], <<$/>>),
@@ -469,19 +475,6 @@ process([_UserDir, _RandDir, FileName] = Slot,
 		       [Method, ?ADDR_TO_STR(IP), Host, Error]),
 	    http_response(Host, 500)
     end;
-process(LocalPath, #request{method = 'PUT', host = Host, ip = IP})
-    when length(LocalPath) > 3 ->
-    ?INFO_MSG("Rejecting PUT request from ~s for ~s: Too many path components",
-	      [?ADDR_TO_STR(IP), Host]),
-    ?INFO_MSG("Check whether 'request_handlers' path matches 'put_url'", []),
-    http_response(Host, 404);
-process(_LocalPath, #request{method = Method, host = Host, ip = IP})
-    when Method == 'PUT';
-	 Method == 'GET';
-	 Method == 'HEAD' ->
-    ?DEBUG("Rejecting ~s request from ~s for ~s: Too few/many path components",
-	   [Method, ?ADDR_TO_STR(IP), Host]),
-    http_response(Host, 404);
 process(_LocalPath, #request{method = 'OPTIONS', host = Host, ip = IP}) ->
     ?DEBUG("Responding to OPTIONS request from ~s for ~s",
 	   [?ADDR_TO_STR(IP), Host]),
@@ -504,10 +497,10 @@ get_proc_name(ServerHost, ModuleName) ->
 				       (_) -> <<"http://@HOST@">>
 				    end,
 				    <<"http://@HOST@">>),
-    [_, ProcHost | _] = binary:split(expand_host(PutURL, ServerHost),
-				     [<<"http://">>, <<"https://">>,
-				      <<":">>, <<"/">>], [global]),
-    gen_mod:get_module_proc(ProcHost, ModuleName).
+    {ok, {_Scheme, _UserInfo, Host, _Port, Path, _Query}} =
+	http_uri:parse(binary_to_list(expand_host(PutURL, ServerHost))),
+    ProcPrefix = list_to_binary(string:strip(Host ++ Path, right, $/)),
+    gen_mod:get_module_proc(ProcPrefix, ModuleName).
 
 -spec expand_home(binary()) -> binary().
 
@@ -683,18 +676,18 @@ create_slot(#state{service_url = ServiceURL},
 -spec add_slot(slot(), pos_integer(), timer:tref(), state()) -> state().
 
 add_slot(Slot, Size, Timer, #state{slots = Slots} = State) ->
-    NewSlots = dict:store(Slot, {Size, Timer}, Slots),
+    NewSlots = maps:put(Slot, {Size, Timer}, Slots),
     State#state{slots = NewSlots}.
 
 -spec get_slot(slot(), state()) -> {ok, {pos_integer(), timer:tref()}} | error.
 
 get_slot(Slot, #state{slots = Slots}) ->
-    dict:find(Slot, Slots).
+    maps:find(Slot, Slots).
 
 -spec del_slot(slot(), state()) -> state().
 
 del_slot(Slot, #state{slots = Slots} = State) ->
-    NewSlots = dict:erase(Slot, Slots),
+    NewSlots = maps:remove(Slot, Slots),
     State#state{slots = NewSlots}.
 
 -spec slot_el(slot() | binary(), state() | binary(), binary()) -> xmlel().
@@ -769,20 +762,33 @@ iq_disco_info(Lang, Name) ->
 
 %% HTTP request handling.
 
+-spec parse_http_request(#request{}) -> {atom(), slot()}.
+
+parse_http_request(#request{host = Host, path = Path}) ->
+    PrefixLength = length(Path) - 3,
+    {ProcURL, Slot} = if PrefixLength > 0 ->
+			      Prefix = lists:sublist(Path, PrefixLength),
+			      {str:join([Host | Prefix], $/),
+			       lists:nthtail(PrefixLength, Path)};
+			 true ->
+			      {Host, Path}
+		      end,
+    {gen_mod:get_module_proc(ProcURL, ?PROCNAME), Slot}.
+
 -spec store_file(binary(), binary(),
 		 integer() | undefined,
 		 integer() | undefined,
 		 binary(), slot(), boolean())
       -> ok | {ok, [{binary(), binary()}], binary()} | {error, term()}.
 
-store_file(Path, Data, FileMode, DirMode, GetPrefix, LocalPath, Thumbnail) ->
+store_file(Path, Data, FileMode, DirMode, GetPrefix, Slot, Thumbnail) ->
     case do_store_file(Path, Data, FileMode, DirMode) of
 	ok when Thumbnail ->
 	    case identify(Path) of
 		{ok, MediaInfo} ->
 		    case convert(Path, MediaInfo) of
 			{ok, OutPath} ->
-			    [UserDir, RandDir | _] = LocalPath,
+			    [UserDir, RandDir | _] = Slot,
 			    FileName = filename:basename(OutPath),
 			    URL = str:join([GetPrefix, UserDir,
 					    RandDir, FileName], <<$/>>),

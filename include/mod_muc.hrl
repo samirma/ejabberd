@@ -1,6 +1,5 @@
 %%%----------------------------------------------------------------------
-%%% RFC 1928 constants.
-%%%
+%%% File    : mod_muc.hrl
 %%%
 %%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
@@ -20,54 +19,15 @@
 %%%
 %%%----------------------------------------------------------------------
 
-%% Version
--define(VERSION_5, 5).
+-record(muc_room, {name_host = {<<"">>, <<"">>} :: {binary(), binary()} |
+                                                   {'_', binary()},
+                   opts = [] :: list() | '_'}).
 
-%% Authentication methods
--define(AUTH_ANONYMOUS, 0).
+-record(muc_online_room,
+        {name_host = {<<"">>, <<"">>} :: {binary(), binary()} | '$1' |
+                                         {'_', binary()} | '_',
+         pid = self() :: pid() | '$2' | '_' | '$1'}).
 
--define(AUTH_GSSAPI, 1).
-
--define(AUTH_PLAIN, 2).
-
-%% Address Type
--define(AUTH_NO_METHODS, 255).
-
--define(ATYP_IPV4, 1).
-
--define(ATYP_DOMAINNAME, 3).
-
--define(ATYP_IPV6, 4).
-
-%% Commands
--define(CMD_CONNECT, 1).
-
--define(CMD_BIND, 2).
-
--define(CMD_UDP, 3).
-
-%% RFC 1928 replies
--define(SUCCESS, 0).
-
--define(ERR_GENERAL_FAILURE, 1).
-
--define(ERR_NOT_ALLOWED, 2).
-
--define(ERR_NETWORK_UNREACHABLE, 3).
-
--define(ERR_HOST_UNREACHABLE, 4).
-
--define(ERR_CONNECTION_REFUSED, 5).
-
--define(ERR_TTL_EXPIRED, 6).
-
--define(ERR_COMMAND_NOT_SUPPORTED, 7).
-
--define(ERR_ADDRESS_TYPE_NOT_SUPPORTED, 8).
-
-%% RFC 1928 defined timeout.
--define(SOCKS5_REPLY_TIMEOUT, 10000).
-
--record(s5_request, {rsv = 0 :: integer(),
-                     cmd = connect :: connect | udp,
-                     sha1 = <<"">> :: binary()}).
+-record(muc_registered,
+        {us_host = {{<<"">>, <<"">>}, <<"">>} :: {{binary(), binary()}, binary()} | '$1',
+         nick = <<"">> :: binary()}).

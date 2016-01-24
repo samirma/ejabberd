@@ -26,12 +26,10 @@
 -include("logger.hrl").
 -include("jlib.hrl").
 -include("mod_muc_room.hrl").
+-include("mod_muc.hrl").
 -include("ejabberd_http.hrl").
 -include("ejabberd_web_admin.hrl").
 -include("ejabberd_commands.hrl").
-
-%% Copied from mod_muc/mod_muc.erl
--record(muc_online_room, {name_host, pid}).
 
 %%----------------------------
 %% gen_mod
@@ -357,7 +355,7 @@ build_info_room({Name, Host, Pid}) ->
 	    false ->
 		Last_message1 = queue:last(History),
 		{_, _, _, Ts_last, _} = Last_message1,
-		jlib:timestamp_to_iso(Ts_last)
+		jlib:timestamp_to_legacy(Ts_last)
 	end,
 
     {<<Name/binary, "@", Host/binary>>,
@@ -797,6 +795,7 @@ change_option(Option, Value, Config) ->
 	captcha_protected -> Config#config{captcha_protected = Value};
 	description -> Config#config{description = Value};
 	logging -> Config#config{logging = Value};
+	mam -> Config#config{mam = Value};
 	max_users -> Config#config{max_users = Value};
 	members_by_default -> Config#config{members_by_default = Value};
 	members_only -> Config#config{members_only = Value};

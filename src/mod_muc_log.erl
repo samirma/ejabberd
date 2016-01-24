@@ -5,7 +5,7 @@
 %%% Created : 12 Mar 2006 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -47,12 +47,8 @@
 -include("logger.hrl").
 
 -include("jlib.hrl").
-
+-include("mod_muc.hrl").
 -include("mod_muc_room.hrl").
-
-%% Copied from mod_muc/mod_muc.erl
--record(muc_online_room, {name_host = {<<>>, <<>>} :: {binary(), binary()},
-                          pid = self() :: pid()}).
 
 -define(T(Text), translate:translate(Lang, Text)).
 -define(PROCNAME, ejabberd_mod_muc_log).

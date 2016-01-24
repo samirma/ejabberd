@@ -5,7 +5,7 @@
 %%% Created : 19 Feb 2015 by Christophe Romain <christophe.romain@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2006-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2006-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -510,7 +510,7 @@ compile(_Module, _Spec, DestDir) ->
     EjabBin = filename:dirname(code:which(ejabberd)),
     EjabInc = filename:join(filename:dirname(EjabBin), "include"),
     XmlHrl = filename:join(EjabInc, "xml.hrl"),
-    Logger = [{d, 'LAGER'} || code:is_loaded(lager)=/=false],
+    Logger = [{d, 'P1LOGGER'} || code:is_loaded(lager)==false],
     ExtLib = [{d, 'NO_EXT_LIB'} || filelib:is_file(XmlHrl)],
     Options = [{outdir, Ebin}, {i, "include"}, {i, EjabInc},
                verbose, report_errors, report_warnings]

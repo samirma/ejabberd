@@ -5,7 +5,7 @@
 %%% Created : 19 Mar 2003 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -58,19 +58,7 @@
 -include("logger.hrl").
 
 -include("jlib.hrl").
-
--record(muc_room, {name_host = {<<"">>, <<"">>} :: {binary(), binary()} |
-                                                   {'_', binary()},
-                   opts = [] :: list() | '_'}).
-
--record(muc_online_room,
-        {name_host = {<<"">>, <<"">>} :: {binary(), binary()} | '$1' |
-                                         {'_', binary()} | '_',
-         pid = self() :: pid() | '$2' | '_' | '$1'}).
-
--record(muc_registered,
-        {us_host = {{<<"">>, <<"">>}, <<"">>} :: {{binary(), binary()}, binary()} | '$1',
-         nick = <<"">> :: binary()}).
+-include("mod_muc.hrl").
 
 -record(state,
 	{host = <<"">> :: binary(),
@@ -364,6 +352,14 @@ init([Host, Opts]) ->
 				 end;
 			     max_users ->
 				 fun(I) when is_integer(I), I > 0 -> I end;
+                             presence_broadcast ->
+                                 fun(L) ->
+                                         lists:map(
+                                           fun(moderator) -> moderator;
+                                              (participant) -> participant;
+                                              (visitor) -> visitor
+                                           end, L)
+                                 end;
 			     _ ->
 				 ?ERROR_MSG("unknown option ~p with value ~p",
 					    [Opt, Val]),
@@ -748,6 +744,8 @@ iq_disco_info(ServerHost, Lang) ->
 	case gen_mod:is_loaded(ServerHost, mod_mam) of
 	    true ->
 		[#xmlel{name = <<"feature">>,
+			attrs = [{<<"var">>, ?NS_MAM_TMP}]},
+		 #xmlel{name = <<"feature">>,
 			attrs = [{<<"var">>, ?NS_MAM_0}]},
 		 #xmlel{name = <<"feature">>,
 			attrs = [{<<"var">>, ?NS_MAM_1}]}];
@@ -1101,7 +1099,7 @@ iq_get_vcard(Lang) ->
 		[{xmlcdata,
 		  <<(translate:translate(Lang,
 					 <<"ejabberd MUC module">>))/binary,
-		    "\nCopyright (c) 2003-2015 ProcessOne">>}]}].
+		    "\nCopyright (c) 2003-2016 ProcessOne">>}]}].
 
 broadcast_service_message(Host, Msg) ->
     lists:foreach(

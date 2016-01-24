@@ -5,7 +5,7 @@
 %%% Created : 27 Feb 2004 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -513,12 +513,14 @@ recv_data(#state{trail = Trail} = State, Len, <<>>) when byte_size(Trail) > Len 
 recv_data(State, Len, Acc) ->
     case State#state.trail of
 	<<>> ->
-	    case (State#state.sockmod):recv(State#state.socket, Len,
-					    300000)
+	    case (State#state.sockmod):recv(State#state.socket,
+					    min(Len, 16#4000000), 300000)
 	    of
 		{ok, Data} ->
 		    recv_data(State, Len - byte_size(Data), <<Acc/binary, Data/binary>>);
-		_ -> <<"">>
+		Err ->
+		    ?DEBUG("Cannot receive HTTP data: ~p", [Err]),
+		    <<"">>
 	    end;
 	_ ->
 	    Trail = (State#state.trail),

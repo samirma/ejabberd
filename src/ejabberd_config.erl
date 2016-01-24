@@ -5,7 +5,7 @@
 %%% Created : 14 Dec 2002 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -425,7 +425,6 @@ merge_configs(Terms, ResMap) ->
                         maps:put(Name, Val, Map)
                 end, ResMap, Terms).
 
-
 %% @doc Include additional configuration files in the list of terms.
 %% @spec ([term()]) -> [term()]
 include_config_files(Terms) ->
@@ -443,8 +442,8 @@ include_config_files(Terms) ->
                        include_config_file(File, Opts)
                end, lists:flatten(FileOpts)),
 
-    M1 = merge_configs(Terms1, #{}),
-    M2 = merge_configs(Terms2, M1),
+    M1 = merge_configs(transform_terms(Terms1), #{}),
+    M2 = merge_configs(transform_terms(Terms2), M1),
     maps_to_lists(M2).
 
 transform_include_option({include_config_file, File}) when is_list(File) ->

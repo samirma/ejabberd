@@ -5,7 +5,7 @@
 %%% Created :  4 May 2008 by Badlop <badlop@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -250,8 +250,8 @@ form_new_get(Host, Lang, IP) ->
 					"a Jabber client.">>),
 				 ?XCT(<<"li">>,
 				      <<"Some Jabber clients can store your password "
-					"in your computer. Use that feature only "
-					"if you trust your computer is safe.">>),
+					"in the computer, but you should do this only "
+					"in your personal computer for safety reasons.">>),
 				 ?XCT(<<"li">>,
 				      <<"Memorize your password, or write it "
 					"in a paper placed in a safe place. In "

@@ -5,7 +5,7 @@
 %%% Created : 19 Jan 2003 by Alexey Shchepin <alexey@process-one.net>
 %%%
 %%%
-%%% ejabberd, Copyright (C) 2002-2015   ProcessOne
+%%% ejabberd, Copyright (C) 2002-2016   ProcessOne
 %%%
 %%% This program is free software; you can redistribute it and/or
 %%% modify it under the terms of the GNU General Public License as
@@ -41,13 +41,10 @@
 -include("logger.hrl").
 
 -include("jlib.hrl").
-
+-include("ejabberd_sm.hrl").
 -include("adhoc.hrl").
 
 -define(T(Lang, Text), translate:translate(Lang, Text)).
-
-%% Copied from ejabberd_sm.erl
--record(session, {sid, usr, us, priority, info}).
 
 start(Host, _Opts) ->
     ejabberd_hooks:add(disco_local_items, Host, ?MODULE,
