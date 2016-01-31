@@ -49,10 +49,7 @@ process_local_iq(_From, To,
 			Range = xml:get_tag_attr_s(<<"within">>, PTag),
 			Posts = process_posts_get(To#jid.lserver, Lat, Long, Range),
 			Result = [#xmlel{name = <<"posts">>, attrs = [{<<"xmlns">>, ?NS_POST}], children = Posts}],
-			ResultQuery = [#xmlel{name = <<"query">>,
-			    attrs = [{<<"xmlns">>, ?NS_POST}],
-			    children = Result}],
-			IQ#iq{type = result, sub_el = ResultQuery}
+			IQ#iq{type = result, sub_el = Result}
 	end.
 
 
