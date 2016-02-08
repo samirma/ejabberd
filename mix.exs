@@ -3,7 +3,7 @@ defmodule Ejabberd.Mixfile do
 
   def project do
     [app: :ejabberd,
-     version: "16.01.0",
+     version: "16.01.0-beta1",
      description: description,
      elixir: "~> 1.1",
      elixirc_paths: ["lib"],
@@ -66,7 +66,8 @@ defmodule Ejabberd.Mixfile do
       licenses: ["GPLv2"],
       links: %{"Site" => "https://www.ejabberd.im",
                "Documentation" => "http://docs.ejabberd.im",
-               "Source" => "https://github.com/processone/ejabberd"}]
+               "Source" => "https://github.com/processone/ejabberd",
+               "ProcessOne" => "http://www.process-one.net/"}]
   end
 end
 
