@@ -79,7 +79,7 @@ md_tag(pre, V) ->
 md_tag(p, V) ->
     [<<"\n\n">>, V, <<"\n">>];
 md_tag(h1, V) ->
-    [<<"\\nn## ">>, V, <<"\n">>];
+    [<<"\n\n## ">>, V, <<"\n">>];
 md_tag(h2, V) ->
     [<<"\n\n### ">>, V, <<"\n">>];
 md_tag(strong, V) ->
@@ -360,8 +360,9 @@ gen_doc(#ejabberd_commands{name=Name, tags=_Tags, desc=Desc, longdesc=LongDesc,
                      none ->
                          [?RAW(io_lib:format("~p", [Result]))];
                      _ ->
-                         [?RAW(io_lib:format("~p", [Result])),
-                          ?TAG_R(p, ResultDesc)]
+                         [?TAG(dl, [
+			       ?TAG(dt, io_lib:format("~p", [Result])),
+			       ?TAG_R(dd, ResultDesc)])]
                  end,
 
     [?TAG(h1, [?TAG(strong, atom_to_list(Name)), <<" - ">>, ?RAW(Desc)]),
