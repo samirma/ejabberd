@@ -37,7 +37,7 @@ process_local_iq(_From, To,
 		set ->
 			?INFO_MSG("Rating Post ~p ~p ~n", [PostId, Rate]),
 			odbc_queries:rate_post(To#jid.lserver, Username, PostId, Rate),
-			IQ#iq{type = result, sub_el = []};
+			IQ#iq{type = result, sub_el = [#xmlel{name = <<"post">>, attrs = [{<<"xmlns">>, ?NS_RATE}], children = []}]};
 		get ->
 			IQ#iq{type = error, sub_el = []}
 	end.

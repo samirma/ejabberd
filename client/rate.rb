@@ -15,7 +15,7 @@ end
 
 
 def rate_post(post_id, rate, cl)
-	iqr = Jabber::Iq.new(:set, 'citiviti.com')
+	iqr = Jabber::Iq.new(:set, 'dev.citiviti.com')
 	qr = Jabber::IqQuery.new
 	qr.add_namespace('jabber:iq:rate')
 	postXml = REXML::Element.new('post')

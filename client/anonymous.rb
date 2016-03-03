@@ -7,7 +7,7 @@ include Jabber
 
 number = rand(1000)
 
-userString = "anonymous_#{number}@citiviti.com"
+userString = "anonymous_#{number}@dev.citiviti.com"
 password = '12345'
 
 if ARGV.size == 2
