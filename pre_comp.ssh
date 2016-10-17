@@ -1,0 +1,8 @@
+apt-get install git
+apt-get install build-essential 
+apt-get install automake  
+apt-get install automake  build-essential 
+apt-get install libsqlite3-dev
+
+wget -c http://packages.erlang-solutions.com/site/esl/esl-erlang/FLAVOUR_1_general/esl-erlang_18.1-1~ubuntu~trusty_amd64.deb
+

@@ -29,11 +29,16 @@
 -define(NS_REGISTER, <<"jabber:iq:register">>).
 -define(NS_SEARCH, <<"jabber:iq:search">>).
 -define(NS_ROSTER, <<"jabber:iq:roster">>).
--define(NS_ROSTER_VER,
-	<<"urn:xmpp:features:rosterver">>).
+-define(NS_ROSTER_VER,<<"urn:xmpp:features:rosterver">>).
 -define(NS_PRIVACY, <<"jabber:iq:privacy">>).
 -define(NS_BLOCKING, <<"urn:xmpp:blocking">>).
 -define(NS_PRIVATE, <<"jabber:iq:private">>).
+-define(NS_POST, <<"jabber:iq:post">>).
+-define(NS_COMMENT, <<"jabber:iq:comment">>).
+-define(NS_RATE, <<"jabber:iq:rate">>).
+-define(NS_CITIVITI_REGISTER, <<"jabber:iq:citivitiregister">>).
+-define(NS_CITIVITI_PREFERENCE, <<"jabber:iq:citivitipreference">>).
+-define(NS_CITIVITI_HIDDEN, <<"jabber:iq:citivitihidden">>).
 -define(NS_VERSION, <<"jabber:iq:version">>).
 -define(NS_TIME, <<"urn:xmpp:time">>).
 -define(NS_LAST, <<"jabber:iq:last">>).
